@@ -1,0 +1,27 @@
+{
+  "name": "sandboxify",
+  "version": "1.0.0",
+  "description": "testing facilitation, by converting Unit Under Test to a sandboxed version, that exposes module internals without the need to export them.",
+  "main": "main.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [
+    "unit",
+    "testing",
+    "testing",
+    "test"
+  ],
+  "author": "Adam Skobliński",
+  "license": "Unlicense",
+  "dependencies": {
+    "coffee-script": "^1.10.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "glob": "^7.0.0"
+  }
+}
