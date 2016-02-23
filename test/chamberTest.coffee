@@ -3,23 +3,23 @@ inquisitor = require "@nokia/inquisitor"
 myIllusionMaker = inquisitor.makeGlobalMock
 deprivation = require("../")
 
-describe "chamber", ->
+describe "deprivating chamber", ->
 
-  it "must give the real experience", ->
+  it "must expose my interior", ->
     seance = deprivation("test/exampleUUT.js")
-    uut = seance.giveImpression()
+    uut = seance.exposeInterior()
     expect(uut.arrangeHeapDumps).be.ok
     uut.glob.GlobSync("kupadupa")
 
-  it "must mock whole modules from node_modules", ->
+  it "must provide illusions", ->
     seance = deprivation("test/exampleUUT.js", mock:["glob"], myIllusionMaker)
-    uut = seance.giveImpression()
+    uut = seance.exposeInterior()
 
     inquisitor.expect(uut.glob.GlobSync).once.args("kupadupa")
     uut.glob.GlobSync("kupadupa")
 
-  it "must mock modules from relative paths", ->
+  it "must provide relative illusions", ->
     seance = deprivation("test/exampleUUT.js", mock:["./dep.js"], myIllusionMaker)
-    uut = seance.giveImpression()
+    uut = seance.exposeInterior()
     inquisitor.expect(uut.anotherGlob.GlobSync).once.args("dupakupa")
     uut.anotherGlob.GlobSync("dupakupa")
