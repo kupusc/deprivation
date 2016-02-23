@@ -8,11 +8,10 @@
 
       giveSandbox: =>
         #thisFilePath = /[^\(]*\(([^:]*)/.exec(new Error().stack.split('\n')[1])[1]
-        if @opts
-          if @opts.mock
-            mockedRequires = {}
-            for req in @opts.mock
-              mockedRequires[req] = @mockifyRequirements(req)
+        if @opts and @opts.mock
+          mockedRequires = {}
+          for req in @opts.mock
+            mockedRequires[req] = @mockifyRequirements(req)
         return @createSandboxFromPath(mockedRequires)
 
       setDoubleMaker: (@doubleMaker) ->
