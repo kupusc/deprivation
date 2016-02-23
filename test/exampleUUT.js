@@ -1,5 +1,7 @@
 var glob = require("glob");
-//var anotherGlob = require("./dep.js");
+var anotherGlob = require("./dep.js");
+
+//console.log(anotherGlob);
 
 var arrangeHeapDumps = function(a, b) {
 

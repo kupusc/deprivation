@@ -6,19 +6,20 @@
 Class will allow to share some basic variables, like *path* of the uut, or *options* passed, also generate a path of
 **this** file
 
-    class Sandbox
-      constructor: (@_path, @opts) ->
-        @thisFilePath = /[^\(]*\(([^:]*)/.exec(new Error().stack.split('\n')[1])[1]
+    class Chamber
+      constructor: (@_path, @opts, @illusionFactory) ->
+        @thisFileDir = path.dirname(/[^\(]*\(([^:]*)/.exec(new Error().stack.split('\n')[1])[1])
 
-      giveSandbox: =>
+      giveImpression: =>
         #thisFilePath = /[^\(]*\(([^:]*)/.exec(new Error().stack.split('\n')[1])[1]
         if @opts and @opts.mock
           mockedRequires = {}
           for req in @opts.mock
             mockedRequires[req] = @mockifyRequirements(req)
-        return @createSandboxFromPath(mockedRequires)
 
-      setDoubleMaker: (@doubleMaker) =>
+        #console.log mockedRequires
+
+        return @createSandboxFromPath(mockedRequires)
 
       mockifyRequirements: (req, reqSubFunction)=>
         reqType = typeof req
@@ -28,17 +29,21 @@ Class will allow to share some basic variables, like *path* of the uut, or *opti
 
       mockifyRequirmentsWholeModule: (req) =>
         if req[0] == '.' or req[0] == path.sep
-          @makePathVisibleFromHere(req)
+          req = @makePathVisibleFromHere(req)
         _module = require(req)
         funcsToBeMocked = []
         for modkey,modval of _module
+          #console.log 'modkey: ' + modkey + ', modval:' + modval + ', typeof modval: ' + typeof modval + ', modval.name:' + modval.name
           if typeof modval is "function" and modval.name
+            #console.log modval.name
             funcsToBeMocked.push modval.name
-        return @doubleMaker(funcsToBeMocked...)
+        return @illusionFactory(funcsToBeMocked...)
 
       makePathVisibleFromHere: (req) =>
-        console.log 'before transformation: ' + req
-        console.log 'after: ', path.join(pathFromCaller, req)
+        #console.log 'before transformation: ' + req
+        resultingPath = path.relative(@thisFileDir, path.join(process.cwd(), path.dirname(@_path), req))
+        #console.log 'after: ', resultingPath
+        return resultingPath
 
       createSandboxFromPath: (_mockedRequires)=>
         sandbox = @createInheritedSandbox()
@@ -58,12 +63,17 @@ Class will allow to share some basic variables, like *path* of the uut, or *opti
           if _mockedRequires and _mockedRequires[p]
             return _mockedRequires[p]
           else
-            return @returnRequireOrAssert(p)
+            if p[0] == '.' or p[0] == path.sep
+              return require(path.relative(@thisFileDir, path.join(process.cwd(), path.dirname(@_path), p))) #@returnOriginalRequire(p)
+            else
+              return require(p)
 
-      returnRequireOrAssert: (p)=>
+      @returnOriginalRequire: (p) =>
         if p[0] == '.' or p[0] == path.sep
-          assert false, 'module ' + p + ' must be explicitly doubled with ..., {"' + p + '": aDoubleObject} argument!'
+          return require(@makePathVisibleFromHere(p))
         else
           return require(p)
 
-    module.exports = (params...) -> new Sandbox(params...)
+    module.exports = (params...) ->
+        new Chamber(params...)
+
