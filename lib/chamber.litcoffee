@@ -7,8 +7,12 @@ Class will allow to share some basic variables, like *path* of the uut, or *opti
 **this** file
 
     class Chamber
-      constructor: (@_path, @opts, @illusionFactory) ->
+      constructor: (@_path, @opts) ->
+        @illusionFactory = stimulation
         @physicalLocationOfChamber = path.dirname(/[^\(]*\(([^:]*)/.exec(new Error().stack.split('\n')[1])[1])
+
+      stimulates: (illusions) =>
+        @illusionFactory = illusions
 
       exposeInterior: =>
         illusions = @provokeIllusions()
@@ -16,59 +20,59 @@ Class will allow to share some basic variables, like *path* of the uut, or *opti
 
       provokeIllusions: =>
         if @opts and @opts.mock
-          phantomRelatives = {}
-          for relative in @opts.mock
-            phantomRelatives[relative] = @projectRelativesAsYouWishedThemToBe(relative)
-        return phantomRelatives
+          imaginedRelations = {}
+          for relation in @opts.mock
+            imaginedRelations[relation] = @projectRelationsYourWay(relation)
+        return imaginedRelations
 
-      projectRelativesAsYouWishedThemToBe: (rel, reqSubFunction)=>
+      projectRelationsYourWay: (rel, relationAspect)=>
         reqType = typeof rel
         if reqType is "string"
-          if not reqSubFunction
-            return @projectWholePerson(rel)
+          if not relationAspect
+            return @projectEntireRelation(rel)
 
-      projectWholePerson: (rel) =>
+      projectEntireRelation: (rel) =>
         if rel[0] == '.' or rel[0] == path.sep
           rel = @compensatePhysicalDistance(rel)
-        realRelative = require(rel)
-        mockedBehaviors = []
-        for relkey,relval of realRelative
+        realSubject = require(rel)
+        mockedSubjects = []
+        for relkey,relval of realSubject
           if typeof relval is "function" and relval.name
-            mockedBehaviors.push relval.name
-        return @illusionFactory(mockedBehaviors...)
+            mockedSubjects.push relval.name
+        return @illusionFactory(mockedSubjects...)
 
       compensatePhysicalDistance: (rel) =>
         return path.relative(@physicalLocationOfChamber, path.join(process.cwd(), path.dirname(@_path), rel))
 
-      awokenSelfAwarness: (mockedRelatives)=>
-        wrath = @createInheritedSandbox()
-        @replaceRequiresInSandbox(wrath, mockedRelatives)
-        context = vm.createContext(wrath);
-        script = new vm.Script("module = {exports: {}};" + fs.readFileSync(@_path))
-        assert(script.runInContext(context))
-        return wrath
+      awokenSelfAwarness: (mockedRelations)=>
+        awarness = @createPureMind()
+        @replaceRealRelations(awarness, mockedRelations)
+        situation = vm.createContext(awarness);
+        role = new vm.Script("module = {exports: {}};" + fs.readFileSync(@_path))
+        assert(role.runInContext(situation))
+        return awarness
 
-      createInheritedSandbox: =>
-        Sandbox = ->
-        Sandbox.prototype = global
-        return new Sandbox
+      createPureMind: =>
+        Mind = ->
+        Mind.prototype = global
+        return new Mind
 
-      replaceRequiresInSandbox: (sandbox, _mockedRequires) =>
-        sandbox.require = (p)=>
-          if _mockedRequires and _mockedRequires[p]
-            return _mockedRequires[p]
+      replaceRealRelations: (you, _mockedRelations) =>
+        you.require = (p)=>
+          if _mockedRelations and _mockedRelations[p]
+            return _mockedRelations[p]
           else
             if p[0] == '.' or p[0] == path.sep
               return require(path.relative(@physicalLocationOfChamber, path.join(process.cwd(), path.dirname(@_path), p))) #@returnOriginalRequire(p)
             else
               return require(p)
 
-      @returnOriginalRequire: (p) =>
-        if p[0] == '.' or p[0] == path.sep
-          return require(@compensatePhysicalDistance(p))
-        else
-          return require(p)
+    stimulation = undefined
 
-    module.exports = (params...) ->
+    module.exports = {
+      chamber: (params...) =>
         new Chamber(params...)
+      stimulates: (something) ->
+        stimulation = something
+    }
 

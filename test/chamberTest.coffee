@@ -1,25 +1,27 @@
 expect = require("chai").expect
 inquisitor = require "@nokia/inquisitor"
-myIllusionMaker = inquisitor.makeGlobalMock
+myIllusions = inquisitor.makeGlobalMock
 deprivation = require("../")
+chamber = deprivation.chamber
+deprivation.stimulates(myIllusions)
 
-describe "deprivating chamber", ->
+describe "deprivation chamber", ->
 
   it "must expose my interior", ->
-    seance = deprivation("test/exampleUUT.js")
-    uut = seance.exposeInterior()
-    expect(uut.arrangeHeapDumps).be.ok
-    uut.glob.GlobSync("kupadupa")
+    seance = chamber("test/exampleUUT.js")
+    me = seance.exposeInterior()
+    expect(me.arrangeHeapDumps).be.ok
+    me.glob.GlobSync("kupadupa")
 
   it "must provide illusions", ->
-    seance = deprivation("test/exampleUUT.js", mock:["glob"], myIllusionMaker)
-    uut = seance.exposeInterior()
+    seance = chamber("test/exampleUUT.js", mock:["glob"])
+    me = seance.exposeInterior()
 
-    inquisitor.expect(uut.glob.GlobSync).once.args("kupadupa")
-    uut.glob.GlobSync("kupadupa")
+    inquisitor.expect(me.glob.GlobSync).once.args("kupadupa")
+    me.glob.GlobSync("kupadupa")
 
   it "must provide relative illusions", ->
-    seance = deprivation("test/exampleUUT.js", mock:["./dep.js"], myIllusionMaker)
-    uut = seance.exposeInterior()
-    inquisitor.expect(uut.anotherGlob.GlobSync).once.args("dupakupa")
-    uut.anotherGlob.GlobSync("dupakupa")
+    seance = chamber("test/exampleUUT.js", mock:["./dep.js"])
+    me = seance.exposeInterior()
+    inquisitor.expect(me.anotherGlob.GlobSync).once.args("dupakupa")
+    me.anotherGlob.GlobSync("dupakupa")
