@@ -1,19 +1,19 @@
 expect = require("chai").expect
 inquisitor = require "@nokia/inquisitor"
-sandbox = require("../")
+sandman = require("../")
 
 describe "sandboxify", ->
 
   it "must return sandbox", ->
-    sndbx = new sandbox("test/exampleUUT.js")
-    uut = sndbx.giveSandbox()
+    s = sandman("test/exampleUUT.js")
+    uut = s.giveSandbox()
     expect(uut.arrangeHeapDumps).be.ok
     uut.glob.GlobSync("kupadupa")
 
   it "must mock whole modules from node_modules", ->
-    sndbx = new sandbox("test/exampleUUT.js", mock:["glob"])
-    sndbx.setDoubleMaker(inquisitor.makeGlobalMock)
-    uut = sndbx.giveSandbox()
+    s = sandman("test/exampleUUT.js", mock:["glob"])
+    s.setDoubleMaker(inquisitor.makeGlobalMock)
+    uut = s.giveSandbox()
 
     inquisitor.expect(uut.glob.GlobSync).once.args("kupadupa")
     uut.glob.GlobSync("kupadupa")

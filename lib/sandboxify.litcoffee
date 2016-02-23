@@ -3,8 +3,12 @@
     assert = require "assert"
     path = require 'path'
 
+Class will allow to share some basic variables, like *path* of the uut, or *options* passed, also generate a path of
+**this** file
+
     class Sandbox
       constructor: (@_path, @opts) ->
+        @thisFilePath = /[^\(]*\(([^:]*)/.exec(new Error().stack.split('\n')[1])[1]
 
       giveSandbox: =>
         #thisFilePath = /[^\(]*\(([^:]*)/.exec(new Error().stack.split('\n')[1])[1]
@@ -14,7 +18,7 @@
             mockedRequires[req] = @mockifyRequirements(req)
         return @createSandboxFromPath(mockedRequires)
 
-      setDoubleMaker: (@doubleMaker) ->
+      setDoubleMaker: (@doubleMaker) =>
 
       mockifyRequirements: (req, reqSubFunction)=>
         reqType = typeof req
@@ -34,7 +38,6 @@
 
       makePathVisibleFromHere: (req) =>
         console.log 'before transformation: ' + req
-        thisFilePath = /[^\(]*\(([^:]*)/.exec(new Error().stack.split('\n')[1])[1]
         console.log 'after: ', path.join(pathFromCaller, req)
 
       createSandboxFromPath: (_mockedRequires)=>
@@ -63,4 +66,4 @@
         else
           return require(p)
 
-    module.exports = Sandbox
+    module.exports = (params...) -> new Sandbox(params...)
