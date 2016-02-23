@@ -6,7 +6,7 @@
     class Sandbox
       constructor: (@_path, @opts) ->
 
-      giveSandbox: ->
+      giveSandbox: =>
         #thisFilePath = /[^\(]*\(([^:]*)/.exec(new Error().stack.split('\n')[1])[1]
         if @opts
           if @opts.mock
@@ -17,13 +17,13 @@
 
       setDoubleMaker: (@doubleMaker) ->
 
-      mockifyRequirements: (req, reqSubFunction)->
+      mockifyRequirements: (req, reqSubFunction)=>
         reqType = typeof req
         if reqType is "string"
           if not reqSubFunction
             return @mockifyRequirmentsWholeModule(req)
 
-      mockifyRequirmentsWholeModule: (req) ->
+      mockifyRequirmentsWholeModule: (req) =>
         if req[0] == '.' or req[0] == path.sep
           @makePathVisibleFromHere(req)
         _module = require(req)
@@ -33,12 +33,12 @@
             funcsToBeMocked.push modval.name
         return @doubleMaker(funcsToBeMocked...)
 
-      makePathVisibleFromHere: (req) ->
+      makePathVisibleFromHere: (req) =>
         console.log 'before transformation: ' + req
         thisFilePath = /[^\(]*\(([^:]*)/.exec(new Error().stack.split('\n')[1])[1]
         console.log 'after: ', path.join(pathFromCaller, req)
 
-      createSandboxFromPath: (_mockedRequires)->
+      createSandboxFromPath: (_mockedRequires)=>
         sandbox = @createInheritedSandbox()
         @replaceRequiresInSandbox(sandbox, _mockedRequires)
         context = vm.createContext(sandbox);
@@ -46,12 +46,12 @@
         assert(script.runInContext(context))
         return sandbox
 
-      createInheritedSandbox: ->
+      createInheritedSandbox: =>
         Sandbox = ->
         Sandbox.prototype = global
         return new Sandbox
 
-      replaceRequiresInSandbox: (sandbox, _mockedRequires) ->
+      replaceRequiresInSandbox: (sandbox, _mockedRequires) =>
         sandbox.require = (p)=>
           if _mockedRequires and _mockedRequires[p]
             return _mockedRequires[p]
@@ -64,6 +64,4 @@
         else
           return require(p)
 
-    module.exports = {
-      Sandbox: Sandbox
-    }
+    module.exports = Sandbox

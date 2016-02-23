@@ -5,13 +5,13 @@ sandbox = require("../")
 describe "sandboxify", ->
 
   it "must return sandbox", ->
-    sndbx = new sandbox.Sandbox("test/exampleUUT.js")
+    sndbx = new sandbox("test/exampleUUT.js")
     uut = sndbx.giveSandbox()
     expect(uut.arrangeHeapDumps).be.ok
     uut.glob.GlobSync("kupadupa")
 
   it "must mock whole modules from node_modules", ->
-    sndbx = new sandbox.Sandbox("test/exampleUUT.js", mock:["glob"])
+    sndbx = new sandbox("test/exampleUUT.js", mock:["glob"])
     sndbx.setDoubleMaker(inquisitor.makeGlobalMock)
     uut = sndbx.giveSandbox()
 
