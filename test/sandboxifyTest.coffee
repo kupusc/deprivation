@@ -10,15 +10,13 @@ describe "sandboxify", ->
     expect(uut.arrangeHeapDumps).be.ok
     uut.glob.GlobSync("kupadupa")
 
-  it "must mock whole modules", ->
-#    uut = sandboxify("test/exampleUUT.js", mock:["glob", "./dep.js"])
+  it "must mock whole modules from node_modules", ->
     sndbx = new sandbox.Sandbox("test/exampleUUT.js", mock:["glob"])
     sndbx.setDoubleMaker(inquisitor.makeGlobalMock)
-    sandbox.setMocker(inquisitor.makeGlobalMock)
     uut = sndbx.giveSandbox()
 
     inquisitor.expect(uut.glob.GlobSync).once.args("kupadupa")
     uut.glob.GlobSync("kupadupa")
 
-#  it "must take relative path", ->
-#    sandboxify "./exampleUUT.js"
+#  it "must mock modules from relative paths", ->
+#    uut = sandboxify("test/exampleUUT.js", mock:["glob", "./dep.js"])

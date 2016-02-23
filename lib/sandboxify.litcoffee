@@ -31,7 +31,7 @@
         for modkey,modval of _module
           if typeof modval is "function" and modval.name
             funcsToBeMocked.push modval.name
-        return mocker(funcsToBeMocked...)
+        return @doubleMaker(funcsToBeMocked...)
 
       makePathVisibleFromHere: (req) ->
         console.log 'before transformation: ' + req
@@ -52,22 +52,18 @@
         return new Sandbox
 
       replaceRequiresInSandbox: (sandbox, _mockedRequires) ->
-        sandbox.require = (p)->
+        sandbox.require = (p)=>
           if _mockedRequires and _mockedRequires[p]
             return _mockedRequires[p]
           else
-            return returnRequireOrAssert(p)
+            return @returnRequireOrAssert(p)
 
-    returnRequireOrAssert= (p)->
-      if p[0] == '.' or p[0] == path.sep
-        assert false, 'module ' + p + ' must be explicitly doubled with ..., {"' + p + '": aDoubleObject} argument!'
-      else
-        return require(p)
-
-    mocker = undefined
+      returnRequireOrAssert: (p)=>
+        if p[0] == '.' or p[0] == path.sep
+          assert false, 'module ' + p + ' must be explicitly doubled with ..., {"' + p + '": aDoubleObject} argument!'
+        else
+          return require(p)
 
     module.exports = {
-      setMocker: (m) ->
-        mocker = m
       Sandbox: Sandbox
     }
