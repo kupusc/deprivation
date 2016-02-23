@@ -13,7 +13,7 @@
             mockedRequires = {}
             for req in @opts.mock
               mockedRequires[req] = @mockifyRequirements(req)
-        return createSandboxFromPath(@_path, mockedRequires)
+        return @createSandboxFromPath(mockedRequires)
 
       setDoubleMaker: (@doubleMaker) ->
 
@@ -25,7 +25,7 @@
 
       mockifyRequirmentsWholeModule: (req) ->
         if req[0] == '.' or req[0] == path.sep
-          makePathVisibleFromHere(req)
+          @makePathVisibleFromHere(req)
         _module = require(req)
         funcsToBeMocked = []
         for modkey,modval of _module
@@ -33,32 +33,32 @@
             funcsToBeMocked.push modval.name
         return mocker(funcsToBeMocked...)
 
-    makePathVisibleFromHere = (req) ->
-      console.log 'before transformation: ' + req
-      thisFilePath = /[^\(]*\(([^:]*)/.exec(new Error().stack.split('\n')[1])[1]
-      console.log 'after: ', path.join(pathFromCaller, req)
+      makePathVisibleFromHere: (req) ->
+        console.log 'before transformation: ' + req
+        thisFilePath = /[^\(]*\(([^:]*)/.exec(new Error().stack.split('\n')[1])[1]
+        console.log 'after: ', path.join(pathFromCaller, req)
 
-    createSandboxFromPath = (p, _mockedRequires)->
-      sandbox = createInheritedSandbox()
-      replaceRequiresInSandbox(sandbox, _mockedRequires)
-      context = vm.createContext(sandbox);
-      script = new vm.Script("module = {exports: {}};" + fs.readFileSync(p))
-      assert(script.runInContext(context))
-      return sandbox
+      createSandboxFromPath: (_mockedRequires)->
+        sandbox = @createInheritedSandbox()
+        @replaceRequiresInSandbox(sandbox, _mockedRequires)
+        context = vm.createContext(sandbox);
+        script = new vm.Script("module = {exports: {}};" + fs.readFileSync(@_path))
+        assert(script.runInContext(context))
+        return sandbox
 
-    createInheritedSandbox = ->
-      Sandbox = ->
-      Sandbox.prototype = global
-      return new Sandbox
+      createInheritedSandbox: ->
+        Sandbox = ->
+        Sandbox.prototype = global
+        return new Sandbox
 
-    replaceRequiresInSandbox = (sandbox, _mockedRequires) ->
-      sandbox.require = (p)->
-        if _mockedRequires and _mockedRequires[p]
-          return _mockedRequires[p]
-        else
-          return returnRequireOrAssert(p)
+      replaceRequiresInSandbox: (sandbox, _mockedRequires) ->
+        sandbox.require = (p)->
+          if _mockedRequires and _mockedRequires[p]
+            return _mockedRequires[p]
+          else
+            return returnRequireOrAssert(p)
 
-    returnRequireOrAssert = (p)=>
+    returnRequireOrAssert= (p)->
       if p[0] == '.' or p[0] == path.sep
         assert false, 'module ' + p + ' must be explicitly doubled with ..., {"' + p + '": aDoubleObject} argument!'
       else
