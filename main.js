@@ -1,2 +1,3 @@
 require('coffee-script/register');
-module.exports = require("lib/sandboxify.litcoffee");
+var sandbox = require("./lib/sandboxify.litcoffee")
+module.exports = sandbox;
