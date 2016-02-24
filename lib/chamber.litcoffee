@@ -19,9 +19,9 @@ Class will allow to share some basic variables, like *path* of the uut, or *opti
         return @awokenSelfAwarness(illusions)
 
       provokeIllusions: =>
-        if @opts and @opts.mock
+        if @opts and @opts.replace
           imaginedRelations = {}
-          for relation in @opts.mock
+          for relation in @opts.replace
             imaginedRelations[relation] = @projectRelationsYourWay(relation)
         return imaginedRelations
 
@@ -72,7 +72,7 @@ Class will allow to share some basic variables, like *path* of the uut, or *opti
     module.exports = {
       chamber: (params...) =>
         new Chamber(params...)
-      stimulates: (something) ->
+      accepts: (something) ->
         stimulation = something
     }
 

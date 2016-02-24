@@ -3,7 +3,7 @@ inquisitor = require "@nokia/inquisitor"
 myIllusions = inquisitor.makeGlobalMock
 deprivation = require("../")
 chamber = deprivation.chamber
-deprivation.stimulates(myIllusions)
+deprivation.accepts(myIllusions)
 
 describe "deprivation chamber", ->
 
@@ -14,14 +14,20 @@ describe "deprivation chamber", ->
     me.glob.GlobSync("kupadupa")
 
   it "must provide illusions", ->
-    seance = chamber("test/exampleUUT.js", mock:["glob"])
+    seance = chamber("test/exampleUUT.js", replace:["glob"])
     me = seance.exposeInterior()
 
     inquisitor.expect(me.glob.GlobSync).once.args("kupadupa")
     me.glob.GlobSync("kupadupa")
 
   it "must provide relative illusions", ->
-    seance = chamber("test/exampleUUT.js", mock:["./dep.js"])
+    seance = chamber("test/exampleUUT.js", replace:["./dep.js"])
+    me = seance.exposeInterior()
+    inquisitor.expect(me.anotherGlob.GlobSync).once.args("dupakupa")
+    me.anotherGlob.GlobSync("dupakupa")
+
+  it "must not mix mocks with the same names from different modules", ->
+    seance = chamber("test/exampleUUT.js", replace:["./dep.js", "glob"])
     me = seance.exposeInterior()
     inquisitor.expect(me.anotherGlob.GlobSync).once.args("dupakupa")
     me.anotherGlob.GlobSync("dupakupa")
