@@ -1,5 +1,6 @@
 expect = require("chai").expect
 inquisitor = require "@nokia/inquisitor"
+
 myIllusions = inquisitor.makeGlobalMock
 deprivation = require("../")
 chamber = deprivation.chamber
@@ -16,7 +17,6 @@ describe "deprivation chamber", ->
   it "must provide illusions", ->
     seance = chamber("test/exampleUUT.js", replace:["glob"])
     me = seance.exposeInterior()
-
     inquisitor.expect(me.glob.GlobSync).once.args("kupadupa")
     me.glob.GlobSync("kupadupa")
 

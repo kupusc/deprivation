@@ -58,33 +58,40 @@ An example test file.
     // all calls execute the dummy function
 ```
 
-It's possibile inject any type of a test double: *mock*, *spy*, *stub*, *fake*, etc.
+It's possible inject any type of a test double: *mock*, *spy*, *stub*, *fake*, etc.
 
 ### API
 
-The module delivers `accepts` method, which sets the function used for generation of *test doubles*.
+Ok, this part is poor, but is required to connect to the rest of the mocking system used by my company, which is not public :(
 
-The customized function must fulfill a requirement:
- - given a map of detected modules (keys) with its function names (values), should return a corresponding map with custom modules and functions.
+Here it is:
+The module exposes `accepts` method, which sets the function used for generation of *test doubles*.
+
+The customized function **is granted**:
+
+ - to be called once per module required by the *UUT*, and given names of functions detected in the module (not recursive)
+
+The customized function **must fulfill**:
+
+ - given names (like: func("a", "b", "c")), should return a module consisting of functions with the same signatures. This module will be used as a replacement by the *UUT*, instead of the original one.
 
 ```javascript
+    var _ = require("underscore");
     var deprivation = require("deprivation");
 
-    myCustomFunction = function(moduleName/*: string*/, funcNames/*: Array<string>*/) {
+    myIllusions = function() {
         // dumb implementation, just to show the concept
-        if(moduleName === "glob") {
-            return {
-                GlobSync: function(){},
-                //... etc.
-            }
-        }
+        dummyModule = {}
+        _.toArray(arguments).forEach(function(name) {
+            dummyModule[name] = function(){};
+        })
+
+        return dummyModule;
     }
 
-    deprivation.accepts(myCustomFunction);
+    deprivation.accepts(myIllusions);
 
     uut = deprivation.chamber("./implementation.js", replace:["glob"]);
 
-    uut.glob.GlobSync("blabla") // myCustomMockingFunction given a list of functions from glob, returns a replacement
-                                // 'glob' object with my custom functions
-
+    uut.glob.GlobSync("blabla") // dummy function is called
 ```
