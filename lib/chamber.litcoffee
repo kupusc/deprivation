@@ -11,12 +11,8 @@ Class will allow to share some basic variables, like *path* of the uut, or *opti
         @illusionFactory = stimulation
         @physicalLocationOfChamber = path.dirname(/[^\(]*\(([^:]*)/.exec(new Error().stack.split('\n')[1])[1])
 
-      stimulates: (illusions) =>
-        @illusionFactory = illusions
-
       exposeInterior: =>
-        illusions = @provokeIllusions()
-        return @awokenSelfAwarness(illusions)
+        return @awokenConsciousness(@provokeIllusions())
 
       provokeIllusions: =>
         if @opts and @opts.replace
@@ -32,8 +28,7 @@ Class will allow to share some basic variables, like *path* of the uut, or *opti
             return @projectEntireRelation(rel)
 
       projectEntireRelation: (rel) =>
-        if rel[0] == '.' or rel[0] == path.sep
-          rel = @compensatePhysicalDistance(rel)
+        rel = @compensatePhysicalDistance(rel)
         realSubject = require(rel)
         mockedSubjects = []
         for relkey,relval of realSubject
@@ -42,20 +37,23 @@ Class will allow to share some basic variables, like *path* of the uut, or *opti
         return @illusionFactory(mockedSubjects...)
 
       compensatePhysicalDistance: (rel) =>
-        return path.relative(@physicalLocationOfChamber, path.join(process.cwd(), path.dirname(@_path), rel))
+        improvedRelation = rel
+        if rel[0] == '.' or rel[0] == path.sep
+          improvedRelation =  path.relative(@physicalLocationOfChamber, path.join(process.cwd(), path.dirname(@_path), rel))
+        return improvedRelation
 
-      awokenSelfAwarness: (mockedRelations)=>
-        awarness = @createPureMind()
-        @replaceRealRelations(awarness, mockedRelations)
-        situation = vm.createContext(awarness);
+      awokenConsciousness: (mockedRelations)=>
+        consciousness = @wakeUp()
+        @replaceRealRelations(consciousness, mockedRelations)
+        situation = vm.createContext(consciousness);
         role = new vm.Script("module = {exports: {}};" + fs.readFileSync(@_path))
         assert(role.runInContext(situation))
-        return awarness
+        return consciousness
 
-      createPureMind: =>
-        Mind = ->
-        Mind.prototype = global
-        return new Mind
+      wakeUp: =>
+        Awarness = ->
+        Awarness.prototype = global
+        return new Awarness
 
       replaceRealRelations: (you, _mockedRelations) =>
         you.require = (p)=>
