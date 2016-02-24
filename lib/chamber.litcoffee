@@ -1,67 +1,89 @@
-    vm = require "vm"
-    fs = require "fs"
-    assert = require "assert"
+    vm = require 'vm'
+    fs = require 'fs'
+    assert = require 'assert'
     path = require 'path'
 
-Class will allow to share some basic variables, like *path* of the uut, or *options* passed, also generate a path of
-**this** file
+Class **Chamber** is the main part of the deprivation package.
 
     class Chamber
-      constructor: (@_path, @opts) ->
-        @illusionFactory = stimulation
-        @physicalLocationOfChamber = path.dirname(/[^\(]*\(([^:]*)/.exec(new Error().stack.split('\n')[1])[1])
+
+Private properties
+
+      _path = undefined
+      _opts = undefined
+      _illusionFactory = undefined
+      _physicalLocationOfChamber = undefined
+
+Instance must be initialized with:
+ipath: location of the *Unit Under Test* (mandatory)
+iopts: options (see below for details)
+
+      constructor: (ipath, iopts) ->
+        _opts = iopts
+        _path = ipath
+
+*_illusionFactory* will be used to produce *Test Doubles*, it is taken from the global parameter, exposed by the package.
+You can set it with
+
+        _illusionFactory = stimulation
+        _physicalLocationOfChamber = path.dirname(/[^\(]*\(([^:]*)/.exec(new Error().stack.split('\n')[1])[1])
 
       exposeInterior: =>
-        return @awokenConsciousness(@provokeIllusions())
+        return awokenConsciousness(provokeIllusions())
 
-      provokeIllusions: =>
-        if @opts and @opts.replace
+      provokeIllusions = =>
+        if _opts and _opts.replace
           imaginedRelations = {}
-          for relation in @opts.replace
-            imaginedRelations[relation] = @projectRelationsYourWay(relation)
+          for relation in _opts.replace
+            imaginedRelations[relation] = projectRelationsYourWay(relation)
         return imaginedRelations
 
-      projectRelationsYourWay: (rel, relationAspect)=>
+      projectRelationsYourWay = (rel, relationAspect) =>
         reqType = typeof rel
         if reqType is "string"
           if not relationAspect
-            return @projectEntireRelation(rel)
+            return projectEntireRelation(rel)
 
-      projectEntireRelation: (rel) =>
-        rel = @compensatePhysicalDistance(rel)
+      projectEntireRelation = (rel) =>
+        originalName = rel
+        rel = compensatePhysicalDistance(rel)
         realSubject = require(rel)
-        mockedSubjects = []
-        for relkey,relval of realSubject
-          if typeof relval is "function" and relval.name
-            mockedSubjects.push relval.name
-        return @illusionFactory(mockedSubjects...)
+        return mockSubject(realSubject, originalName)
 
-      compensatePhysicalDistance: (rel) =>
+      mockSubject = (subject) =>
+        mockedAspects = []
+        for relkey,relval of subject
+          #console.log relkey, relval.name
+          if typeof relval is "function" and relval.name
+            mockedAspects.push relval.name
+        return _illusionFactory(mockedAspects...)
+
+      compensatePhysicalDistance = (rel) =>
         improvedRelation = rel
         if rel[0] == '.' or rel[0] == path.sep
-          improvedRelation =  path.relative(@physicalLocationOfChamber, path.join(process.cwd(), path.dirname(@_path), rel))
+          improvedRelation =  path.relative(_physicalLocationOfChamber, path.join(process.cwd(), path.dirname(_path), rel))
         return improvedRelation
 
-      awokenConsciousness: (mockedRelations)=>
-        consciousness = @wakeUp()
-        @replaceRealRelations(consciousness, mockedRelations)
+      awokenConsciousness = (mockedRelations) =>
+        consciousness = wakeUp()
+        replaceRealRelations(consciousness, mockedRelations)
         situation = vm.createContext(consciousness);
-        role = new vm.Script("module = {exports: {}};" + fs.readFileSync(@_path))
+        role = new vm.Script("module = {exports: {}};" + fs.readFileSync(_path))
         assert(role.runInContext(situation))
         return consciousness
 
-      wakeUp: =>
+      wakeUp = =>
         Awarness = ->
         Awarness.prototype = global
         return new Awarness
 
-      replaceRealRelations: (you, _mockedRelations) =>
-        you.require = (p)=>
+      replaceRealRelations = (consciousness, _mockedRelations) =>
+        consciousness.require = (p)=>
           if _mockedRelations and _mockedRelations[p]
             return _mockedRelations[p]
           else
             if p[0] == '.' or p[0] == path.sep
-              return require(path.relative(@physicalLocationOfChamber, path.join(process.cwd(), path.dirname(@_path), p))) #@returnOriginalRequire(p)
+              return require(path.relative(_physicalLocationOfChamber, path.join(process.cwd(), path.dirname(_path), p))) #@returnOriginalRequire(p)
             else
               return require(p)
 

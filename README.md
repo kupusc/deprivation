@@ -65,8 +65,7 @@ It's possibile inject any type of a test double: *mock*, *spy*, *stub*, *fake*, 
 The module delivers `accepts` method, which sets the function used for generation of *test doubles*.
 
 The customized function must fulfill a requirement:
- - given a module name and list of detected function names, should return a new module with functions with the same signatures.
- The new functions can be customized according to one's needs.
+ - given a map of detected modules (keys) with its function names (values), should return a corresponding map with custom modules and functions.
 
 ```javascript
     var deprivation = require("deprivation");

@@ -29,5 +29,8 @@ describe "deprivation chamber", ->
   it "must not mix mocks with the same names from different modules", ->
     seance = chamber("test/exampleUUT.js", replace:["./dep.js", "glob"])
     me = seance.exposeInterior()
-    inquisitor.expect(me.anotherGlob.GlobSync).once.args("dupakupa")
+    seq = new inquisitor.Sequence()
+    inquisitor.expect(me.glob.GlobSync).once.args("dupakupa").in(seq)
+    inquisitor.expect(me.anotherGlob.GlobSync).once.args("dupakupa").in(seq)
+    me.glob.GlobSync("dupakupa")
     me.anotherGlob.GlobSync("dupakupa")
