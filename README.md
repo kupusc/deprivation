@@ -36,7 +36,7 @@ An example test file.
     uut = d("./implementation.js");
     // uut - Unit Under Test
 
-    uut.publicFunc("blabla"); // nothing special. Will call private func, which calls the original original glob.GlobSync.
+    uut.publicFunc("blabla"); // nothing special. Will call private func, which calls the original glob.GlobSync.
     uut.myPrivateFunc("blabla"); // However... note that this func is not exported, but still accessible in a test!
     uut.glob.GlobSync("blabla") // or even this...
 ```
@@ -74,12 +74,13 @@ The customized function **is granted**:
 The customized function **must fulfill**:
 
  - given names (like: func("a", "b", "c")), should return a module consisting of functions with the same signatures. This module will be used as a replacement by the *UUT*, instead of the original one.
+ - called for the second time with the same names (let's say that there are 2 modules with the same method name), it should generate unique *Test Doubles*.
 
 ```javascript
     var _ = require("underscore");
     var deprivation = require("deprivation");
 
-    myIllusions = function() {
+    var myIllusions = function() {
         // dumb implementation, just to show the concept
         dummyModule = {}
         _.toArray(arguments).forEach(function(name) {

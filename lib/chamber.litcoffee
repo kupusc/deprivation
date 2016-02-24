@@ -23,7 +23,7 @@ iopts: options (see below for details)
         _path = ipath
 
 *_illusionFactory* will be used to produce *Test Doubles*, it is taken from the global parameter, exposed by the package.
-You can set it with
+Read more in the README.md file (**API** section)
 
         _illusionFactory = stimulation
         _physicalLocationOfChamber = path.dirname(/[^\(]*\(([^:]*)/.exec(new Error().stack.split('\n')[1])[1])
