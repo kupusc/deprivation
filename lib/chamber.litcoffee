@@ -49,7 +49,12 @@ With the mocked dependant modules (optional), this method does the actual trick.
         Awarness.prototype = global
         return new Awarness
 
-**The rest of methods is not used in the public branch of the package.** That part is devoted to the automated mocking of dependant modules.
+**The rest of methods is not oficially used in the public branch of the package.**
+That part is devoted to the automated mocking of dependant modules, if a special *"mocker"* function is provided.
+While it suits well to the mocking framework used in my company, it is not in any way more convenient from the
+method described in the README.md.
+ > In order to use it a mocking framework must be developed.
+Releasing our company's mocking framework is under consideration, however the deadline is not known.
 
 If required (via the *"replace"* option), automatic mocks of dependencies are created.
 
@@ -109,6 +114,9 @@ we set a mocker function in the module, it is used all the time.
 Couldn't work out quickly a cleaner solution, but I'm sure it must exist...
 
     stimulation = undefined
+
+Module exports. Note the way the stimulation property is used above in the class.
+Patches are welcome.
 
     module.exports = {
       chamber: (params...) =>
