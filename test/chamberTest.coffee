@@ -1,6 +1,6 @@
 expect = require("chai").expect
 
-deprivation = require("../")
+deprivation = require "../"
 chamber = deprivation.chamber
 
 describe "deprivation chamber", ->
