@@ -22,47 +22,19 @@ iopts: options (see below for details)
         _opts = iopts
         _path = ipath
 
-*_illusionFactory* will be used to produce *Test Doubles*, it is taken from the global parameter, exposed by the package.
-Read more in the README.md file (**API** section)
+*_illusionFactory* is used to produce *Test Doubles*, it is taken from the global parameter, exposed by the package.
+ > it means, it can be set from the outside! See below the accepts method of the module's exported properties
 
         _illusionFactory = stimulation
         _physicalLocationOfChamber = path.dirname(/[^\(]*\(([^:]*)/.exec(new Error().stack.split('\n')[1])[1])
 
+The main and the only public method for usage, after creation of an instance.
+
       exposeInterior: =>
         return awokenConsciousness(provokeIllusions())
 
-      provokeIllusions = =>
-        if _opts and _opts.replace
-          imaginedRelations = {}
-          for relation in _opts.replace
-            imaginedRelations[relation] = projectRelationsYourWay(relation)
-        return imaginedRelations
-
-      projectRelationsYourWay = (rel, relationAspect) =>
-        reqType = typeof rel
-        if reqType is "string"
-          if not relationAspect
-            return projectEntireRelation(rel)
-
-      projectEntireRelation = (rel) =>
-        originalName = rel
-        rel = compensatePhysicalDistance(rel)
-        realSubject = require(rel)
-        return mockSubject(realSubject, originalName)
-
-      mockSubject = (subject) =>
-        mockedAspects = []
-        for relkey,relval of subject
-          #console.log relkey, relval.name
-          if typeof relval is "function" and relval.name
-            mockedAspects.push relval.name
-        return _illusionFactory(mockedAspects...)
-
-      compensatePhysicalDistance = (rel) =>
-        improvedRelation = rel
-        if rel[0] == '.' or rel[0] == path.sep
-          improvedRelation =  path.relative(_physicalLocationOfChamber, path.join(process.cwd(), path.dirname(_path), rel))
-        return improvedRelation
+With the mocked dependant modules (optional), this method does the actual trick.
+ > It is a wrapper of the node's VM module
 
       awokenConsciousness = (mockedRelations) =>
         consciousness = wakeUp()
@@ -77,6 +49,17 @@ Read more in the README.md file (**API** section)
         Awarness.prototype = global
         return new Awarness
 
+**The rest of methods is not used in the public branch of the package.** That part is devoted to the automated mocking of dependant modules.
+
+If required (via the *"replace"* option), automatic mocks of dependencies are created.
+
+      provokeIllusions = =>
+        if _opts and _opts.replace
+          imaginedRelations = {}
+          for relation in _opts.replace
+            imaginedRelations[relation] = projectRelationsYourWay(relation)
+        return imaginedRelations
+
       replaceRealRelations = (consciousness, _mockedRelations) =>
         consciousness.require = (p)=>
           if _mockedRelations and _mockedRelations[p]
@@ -86,6 +69,40 @@ Read more in the README.md file (**API** section)
               return require(path.relative(_physicalLocationOfChamber, path.join(process.cwd(), path.dirname(_path), p))) #@returnOriginalRequire(p)
             else
               return require(p)
+
+By default, the entire module is mocked, but it's open for a possibility to mock automatically only a part of an object, in the future.
+
+      projectRelationsYourWay = (rel, relationAspect) =>
+        reqType = typeof rel
+        if reqType is "string"
+          if not relationAspect
+            return projectEntireRelation(rel)
+
+These methods realize mocking of an entire module.
+
+      projectEntireRelation = (rel) =>
+        originalName = rel
+        rel = compensatePhysicalDistance(rel)
+        realSubject = require(rel)
+        return mockSubject(realSubject, originalName)
+
+      mockSubject = (subject) =>
+        mockedAspects = []
+        for relkey,relval of subject
+          if typeof relval is "function" and relval.name
+            mockedAspects.push relval.name
+
+Note that this is actually the place where the injected mocking framework is used.
+
+        return _illusionFactory(mockedAspects...)
+
+A helper function. It solves the problem that if the *"normal"* *require* is injected
+
+      compensatePhysicalDistance = (rel) =>
+        improvedRelation = rel
+        if rel[0] == '.' or rel[0] == path.sep
+          improvedRelation =  path.relative(_physicalLocationOfChamber, path.join(process.cwd(), path.dirname(_path), rel))
+        return improvedRelation
 
     stimulation = undefined
 
