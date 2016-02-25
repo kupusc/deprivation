@@ -16,17 +16,17 @@ mock/stub/etc. just anything in his code.
 Example implementation (*Unit Under Test*).
 
 ```javascript
-    var glob = require("glob")
+var glob = require("glob")
 
-    var myPrivateFunc = function(param){
-        return glob.GlobSync(param);
-    }
+var myPrivateFunc = function(param){
+    return glob.GlobSync(param);
+}
 
-    var myFunc = function(param) {
-        return myPrivateFunc(param);
-    }
+var myFunc = function(param) {
+    return myPrivateFunc(param);
+}
 
-    module.exports.publicFunc = myFunc;
+module.exports.publicFunc = myFunc;
 ```
 
 ### Basic
@@ -34,13 +34,13 @@ Example implementation (*Unit Under Test*).
 An example test file.
 
 ```javascript
-    var d = require("deprivation").chamber;
-    uut = d("./implementation.js");
-    // uut - Unit Under Test
+var d = require("deprivation").chamber;
+uut = d("./implementation.js");
+// uut - Unit Under Test
 
-    uut.publicFunc("blabla"); // nothing special. Will call private func, which calls the original glob.GlobSync.
-    uut.myPrivateFunc("blabla"); // However... note that this func is not exported, but still accessible in a test!
-    uut.glob.GlobSync("blabla") // or even this...
+uut.publicFunc("blabla"); // nothing special. Will call private func, which calls the original glob.GlobSync.
+uut.myPrivateFunc("blabla"); // However... note that this func is not exported, but still accessible in a test!
+uut.glob.GlobSync("blabla") // or even this...
 ```
 
 ### Replace dependencies
@@ -51,50 +51,42 @@ An example test file.
     var d = require("deprivation").chamber;
     uut = d("./implementation.js");
 
-    // now let's get rid of glob.GlobSync dependency
+// now let's get rid of glob.GlobSync dependency
     uut.glob.GlobSync = function(){};
 
     uut.publicFunc("blabla");
     uut.myPrivateFunc("blabla");
     uut.glob.GlobSync("blabla");
-    // all calls execute the dummy function
+// all calls execute the dummy function
 ```
 
 It's possible inject any type of a test double: *mock*, *spy*, *stub*, *fake*, etc.
 
-### API
+### Enabling *Inquisitor*
 
-Ok, this part is poor, but is required to connect to the rest of the mocking system used by my company, which is not public :(
+Instead of crafting manually mocks, you can set the *Inquisitor* as a *"mocker"*,
+and specify a list of modules to be mocked (similar to the *"proxyquire way"*).
 
-Here it is:
-The module exposes `accepts` method, which sets the function used for generation of *test doubles*.
-
-The customized function **is granted**:
-
- - to be called once per module required by the *UUT*, and given names of functions detected in the module (not recursive)
-
-The customized function **must fulfill**:
-
- - given names (like: func("a", "b", "c")), should return a module consisting of functions with the same signatures. This module will be used as a replacement by the *UUT*, instead of the original one.
- - called for the second time with the same names (let's say that there are 2 modules with the same method name), it should generate unique *Test Doubles*.
+Now, all the methods found (via a *"shallow search"*) in the module will become mocks.
+If one needs to tweak more the *UUT*, the technique described in the previous paragraph can be still used.
 
 ```javascript
-    var _ = require("underscore");
+// get the inquisitor and bind it to the deprivation package
+    var inq = require("@nokia/inquisitor")
     var deprivation = require("deprivation");
+    deprivation.accepts(inq.createMockObject);
+// pass the list of packages to be mocked automatically
+    var c = deprivation.chamber;
+    uut = c("./implementation.js", {replace:["glob"]});
+// The expectation part
+    inq.expect(uut.glob.GlobSync).once.args("blabla");
+// The old-way
+    uut.glob.glob = funtion(){throw "don't use this!"};
+// no error, the call was expected
+    uut.publicFunc("blabla");
+// exception!
+    uut.glob.glob("*.js");
 
-    var myIllusions = function() {
-        // dumb implementation, just to show the concept
-        dummyModule = {}
-        _.toArray(arguments).forEach(function(name) {
-            dummyModule[name] = function(){};
-        })
-
-        return dummyModule;
-    }
-
-    deprivation.accepts(myIllusions);
-
-    uut = deprivation.chamber("./implementation.js", replace:["glob"]);
-
-    uut.glob.GlobSync("blabla") // dummy function is called
 ```
+
+Refer to the *test/chamberTest.coffee* for more examples.
