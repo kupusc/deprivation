@@ -96,13 +96,17 @@ Note that this is actually the place where the injected mocking framework is use
 
         return _illusionFactory(mockedAspects...)
 
-A helper function. It solves the problem that if the *"normal"* *require* is injected
+A helper function. It recalculates the relative paths, so that if they are provided here to the require it still works.
 
       compensatePhysicalDistance = (rel) =>
         improvedRelation = rel
         if rel[0] == '.' or rel[0] == path.sep
           improvedRelation =  path.relative(_physicalLocationOfChamber, path.join(process.cwd(), path.dirname(_path), rel))
         return improvedRelation
+
+A global module's property. Together with the setter methos (see *accepts* below), it realizes a requirement, that once
+we set a mocker function in the module, it is used all the time.
+Couldn't work out quickly a cleaner solution, but I'm sure it must exist...
 
     stimulation = undefined
 
