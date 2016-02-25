@@ -1,7 +1,7 @@
 expect = require("chai").expect
 inquisitor = require "@nokia/inquisitor"
 
-myIllusions = inquisitor.makeGlobalMock
+myIllusions = inquisitor.createMockObject
 deprivation = require("../")
 chamber = deprivation.chamber
 deprivation.accepts(myIllusions)
