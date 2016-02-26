@@ -9,7 +9,11 @@ mock/stub/etc. just anything in his code.
 
 ## Usage
 
-`npm install deprivation`
+```bash
+npm install deprivation
+cd node_modules/deprivation
+npm test
+```
 
 Example implementation (*Unit Under Test*).
 

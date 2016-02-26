@@ -1,6 +1,6 @@
 {
   "name": "deprivation",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "testing facilitation, by converting Unit Under Test to a sandboxed version, that exposes module internals without the need to export them.",
   "main": "main.js",
   "directories": {
@@ -19,10 +19,8 @@
   "author": "Adam Skobliński",
   "license": "Unlicense",
   "dependencies": {
-    "coffee-script": "^1.10.0"
-  },
-  "devDependencies": {
     "chai": "^3.5.0",
+    "coffee-script": "^1.10.0",
     "glob": "^7.0.0"
   },
   "repository": {
