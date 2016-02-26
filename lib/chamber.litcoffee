@@ -46,7 +46,7 @@ With the mocked dependant modules (optional), this method does the actual trick.
 
       wakeUp = =>
         Awarness = ->
-        Awarness.prototype = global
+        #Awarness.prototype = global
         return new Awarness
 
 **The rest of methods is not oficially used in the public branch of the package.**
