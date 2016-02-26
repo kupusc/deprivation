@@ -62,7 +62,11 @@ If required (via the *"replace"* option), automatic mocks of dependencies are cr
         if _opts and _opts.replace
           imaginedRelations = {}
           for relation in _opts.replace
-            imaginedRelations[relation] = projectRelationsYourWay(relation)
+            if typeof relation is "object"
+              for key,val of relation
+                imaginedRelations[key] = val
+            else
+              imaginedRelations[relation] = projectRelationsYourWay(relation)
         return imaginedRelations
 
       replaceRealRelations = (consciousness, _mockedRelations) =>
@@ -94,6 +98,7 @@ These methods realize mocking of an entire module.
       mockSubject = (subject) =>
         mockedAspects = []
         for relkey,relval of subject
+
           if typeof relval is "function" and relval.name
             mockedAspects.push relval.name
 

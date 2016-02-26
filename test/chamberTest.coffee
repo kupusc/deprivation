@@ -8,19 +8,19 @@ deprivation.accepts(myIllusions)
 
 describe "deprivation chamber", ->
 
-  it "must expose my interior", ->
+  it "exposes my interior", ->
     seance = chamber("test/exampleUUT.js")
     me = seance.exposeInterior()
     expect(me.arrangeHeapDumps).be.ok
     me.glob.GlobSync("kupadupa")
 
-  it "must provide illusions", ->
+  it "provides illusions", ->
     seance = chamber("test/exampleUUT.js", replace:["glob"])
     me = seance.exposeInterior()
     inquisitor.expect(me.glob.GlobSync).once.args("kupadupa")
     me.glob.GlobSync("kupadupa")
 
-  it "must provide relative illusions", ->
+  it "provides relative illusions", ->
     seance = chamber("test/exampleUUT.js", replace:["./dep.js"])
     me = seance.exposeInterior()
     inquisitor.expect(me.anotherGlob.GlobSync).once.args("dupakupa")
@@ -34,3 +34,9 @@ describe "deprivation chamber", ->
     inquisitor.expect(me.anotherGlob.GlobSync).once.args("dupakupa").in(seq)
     me.glob.GlobSync("dupakupa")
     me.anotherGlob.GlobSync("dupakupa")
+
+  it 'allows doubles through options', ->
+    myGlob = GlobSync: -> return '/.ssh/id_rsa.priv'
+    seance = chamber("test/exampleUUT.js", replace:["glob": myGlob])
+    me = seance.exposeInterior()
+    expect(me.glob.GlobSync("dupakupa")).to.be.equal('/.ssh/id_rsa.priv')

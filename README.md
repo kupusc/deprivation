@@ -37,8 +37,9 @@ module.exports.publicFunc = myFunc;
 An example test file.
 
 ```javascript
-var d = require("deprivation").chamber;
-uut = d("./implementation.js");
+var deprivation = require("deprivation").chamber;
+var session = deprivation("./implementation.js");
+var uut = session.exposeInterior();
 // uut - Unit Under Test
 
 uut.publicFunc("blabla"); // nothing special. Will call private func, which calls the original glob.GlobSync.
@@ -48,48 +49,39 @@ uut.glob.GlobSync("blabla") // or even this...
 
 ### Replace dependencies
 
-An example test file.
+It's possible to inject any type of a test double: *mock*, *spy*, *stub*, *fake*, etc., into the *UUT*
+
+#### Right after the module is 'loaded'
+
+ - the UUT code is 'loaded' (= all the *require* statements are executed in the *UUT*)
+ - the dependencies are replaced after exposition of the *UUT*
 
 ```javascript
-    var d = require("deprivation").chamber;
-    uut = d("./implementation.js");
-
-// now let's get rid of glob.GlobSync dependency
+// let's get rid of glob.GlobSync dependency
     uut.glob.GlobSync = function(){};
 
-    uut.publicFunc("blabla");
-    uut.myPrivateFunc("blabla");
-    uut.glob.GlobSync("blabla");
+    uut.publicFunc('blabla');
+    uut.myPrivateFunc('blabla');
+    uut.glob.GlobSync('blabla');
 // all calls execute the dummy function
 ```
 
-It's possible inject any type of a test double: *mock*, *spy*, *stub*, *fake*, etc.
+#### Without an actual execution of the *require* statements
 
-### Enabling *Inquisitor*
+Sometimes it is desired to replace dependancies in the *UUT* without even trying to actually *require* them.
 
-Instead of crafting manually mocks, you can set the *Inquisitor* as a *"mocker"*,
-and specify a list of modules to be mocked (similar to the *"proxyquire way"*).
-
-Now, all the methods found (via a *"shallow search"*) in the module will become mocks.
-If one needs to tweak more the *UUT*, the technique described in the previous paragraph can be still used.
+This has the following advantages:
+ - speed up of an execution of tests,
+ - complete independence from other modules:
+   - no risk that something is executed in the global scope (can potentially introduce dependencies between tests),
+   - will work even if the module is missing.
 
 ```javascript
-// get the inquisitor and bind it to the deprivation package
-    var inq = require("@nokia/inquisitor")
-    var deprivation = require("deprivation");
-    deprivation.accepts(inq.createMockObject);
-// pass the list of packages to be mocked automatically
-    var c = deprivation.chamber;
-    uut = c("./implementation.js", {replace:["glob"]});
-// The expectation part
-    inq.expect(uut.glob.GlobSync).once.args("blabla");
-// The old-way
-    uut.glob.glob = funtion(){throw "don't use this!"};
-// no error, the call was expected
-    uut.publicFunc("blabla");
-// exception!
-    uut.glob.glob("*.js");
-
+    var deprivation = require('deprivation').chamber;
+    var myGlob = {GlobSync: function() {return '/.ssh/id_rsa.priv'}}
+    var session = deprivation('./implementation.js', {replace:[{'glob': myGlob]}});
+    var uut = session.exposeInterior();
+    expect(uut.glob.GlobSync('something')).to.be.equal('/.ssh/id_rsa.priv')
 ```
 
 Refer to the *test/chamberTest.coffee* for more examples.
