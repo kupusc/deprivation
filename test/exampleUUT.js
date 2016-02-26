@@ -1,5 +1,6 @@
 var glob = require("glob");
 var anotherGlob = require("./dep.js");
+//require('missing module. I dont want this to crash.');
 
 //console.log(anotherGlob);
 
