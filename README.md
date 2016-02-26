@@ -11,8 +11,6 @@ mock/stub/etc. just anything in his code.
 
 `npm install deprivation`
 
-`npm test`
-
 Example implementation (*Unit Under Test*).
 
 ```javascript
