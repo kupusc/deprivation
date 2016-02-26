@@ -34,13 +34,12 @@ Example implementation (*Unit Under Test*).
 An example test file.
 
 ```javascript
-    var d = require("deprivation").chamber;
-    uut = d("./implementation.js");
-    // uut - Unit Under Test
-
-    uut.publicFunc("blabla"); // nothing special. Will call private func, which calls the original glob.GlobSync.
-    uut.myPrivateFunc("blabla"); // However... note that this func is not exported, but still accessible in a test!
-    uut.glob.GlobSync("blabla") // or even this...
+   var session = require("deprivation").chamber;
+   uut = session("./implementation.js").exposeInterior();
+// uut - Unit Under Test
+   uut.publicFunc("blabla"); // nothing special. Will call private func, which calls the original glob.GlobSync.
+   uut.myPrivateFunc("blabla"); // However... note that this func is not exported, but still accessible in a test!
+   uut.glob.GlobSync("blabla") // or even this...
 ```
 
 ### Replace dependencies
@@ -48,16 +47,16 @@ An example test file.
 An example test file.
 
 ```javascript
-    var d = require("deprivation").chamber;
-    uut = d("./implementation.js");
+    var session = require("deprivation").chamber;
+    uut = session("./implementation.js").exposeInterior();
 
-    // now let's get rid of glob.GlobSync dependency
+ // now let's get rid of glob.GlobSync dependency
     uut.glob.GlobSync = function(){};
 
     uut.publicFunc("blabla");
     uut.myPrivateFunc("blabla");
     uut.glob.GlobSync("blabla");
-    // all calls execute the dummy function
+ // all calls execute the dummy function
 ```
 
 It's possible inject any type of a test double: *mock*, *spy*, *stub*, *fake*, etc.
