@@ -66,15 +66,7 @@ It's possible to inject any type of a test double: *mock*, *spy*, *stub*, *fake*
 // all calls execute the dummy function
 ```
 
-#### Without an actual execution of the *require* statements
-
-Sometimes it is desired to replace dependancies in the *UUT* without even trying to actually *require* them.
-
-This has the following advantages:
- - speed up of an execution of tests,
- - complete independence from other modules:
-   - no risk that something is executed in the global scope (can potentially introduce dependencies between tests),
-   - will work even if the module is missing.
+#### Through an option
 
 ```javascript
     var deprivation = require('deprivation').chamber;

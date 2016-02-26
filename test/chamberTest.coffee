@@ -2,11 +2,13 @@ expect = require("chai").expect
 
 deprivation = require "../"
 chamber = deprivation.chamber
+missingModule = 'missing module. I dont want this to crash.': {}
+
 
 describe "deprivation chamber", ->
 
   it "exposes my interior", ->
-    seance = chamber("test/exampleUUT.js")
+    seance = chamber("test/exampleUUT.js", replace:[missingModule])
     me = seance.exposeInterior()
     expect(me.arrangeHeapDumps).be.ok
     me.glob.GlobSync("kupadupa")
@@ -20,6 +22,6 @@ describe "deprivation chamber", ->
 
   it 'allows doubles through options', ->
     myGlob = GlobSync: -> return '/.ssh/id_rsa.priv'
-    seance = chamber("test/exampleUUT.js", replace:["glob": myGlob])
+    seance = chamber("test/exampleUUT.js", replace:["glob": myGlob, missingModule])
     me = seance.exposeInterior()
     expect(me.glob.GlobSync("dupakupa")).to.be.equal('/.ssh/id_rsa.priv')
