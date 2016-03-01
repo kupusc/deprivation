@@ -5,7 +5,7 @@ chamber = deprivation.chamber
 missingModule = 'missing module. I dont want this to crash.': {}
 
 
-describe "deprivation chamber", ->
+describe "deprivation chamber for UT", ->
 
   it "exposes my interior", ->
     seance = chamber("test/exampleUUT.js", replace:[missingModule])
