@@ -19,8 +19,13 @@ ipath: location of the *Unit Under Test* (mandatory)
 iopts: options (see below for details)
 
       constructor: (ipath, iopts) ->
-        _opts = iopts
         _path = ipath
+
+        if iopts?.replace
+          compensateGlob(iopts.replace)
+
+        _opts = iopts
+        _opts.except ?= []
 
 *_illusionFactory* is used to produce *Test Doubles*, it is taken from the global parameter, exposed by the package.
  > it means, it can be set from the outside! See below the accepts method of the module's exported properties
@@ -28,26 +33,32 @@ iopts: options (see below for details)
         _illusionFactory = stimulation
         _physicalLocationOfChamber = path.dirname(/[^\(]*\(([^:]*)/.exec(new Error().stack.split('\n')[1])[1])
 
+      compensateGlob = (optsIllusions)=>
+        for replacementSpec in optsIllusions
+          for orig,repl of replacementSpec
+            compensated = compensatePhysicalDistance(orig)
+            if compensated != orig
+              replacementSpec[compensated] = repl
+              delete replacementSpec[orig]
+
 The main and the only public method for usage, after creation of an instance.
 
       exposeInterior: =>
-        return awokenConsciousness(provokeIllusions())
+        illusions = provokeIllusions()
+        awokenConsciousness(illusions)
+
+      deepenIllusions = =>
 
 With the mocked dependant modules (optional), this method does the actual trick.
  > It is a wrapper of the node's VM module
 
       awokenConsciousness = (mockedRelations) =>
-        consciousness = wakeUp()
+        consciousness = new ->
         replaceRealRelations(consciousness, mockedRelations)
         situation = vm.createContext(consciousness);
         role = new vm.Script("module = {exports: {}};" + fs.readFileSync(_path))
         assert(role.runInContext(situation))
-        return consciousness
-
-      wakeUp = =>
-        Awarness = ->
-        #Awarness.prototype = global
-        return new Awarness
+        consciousness
 
 **The rest of methods is not oficially used in the public branch of the package.**
 That part is devoted to the automated mocking of dependant modules, if a special *"mocker"* function is provided.
@@ -59,25 +70,35 @@ Releasing our company's mocking framework is under consideration, however the de
 If required (via the *"replace"* option), automatic mocks of dependencies are created.
 
       provokeIllusions = =>
-        if _opts and _opts.replace
+        if _opts?.replace != 'all'
           imaginedRelations = {}
-          for relation in _opts.replace
+          for relation in [].concat(_opts.replace)
             if typeof relation is "object"
               for key,val of relation
                 imaginedRelations[key] = val
             else
               imaginedRelations[relation] = projectRelationsYourWay(relation)
-        return imaginedRelations
+        imaginedRelations
 
       replaceRealRelations = (consciousness, _mockedRelations) =>
-        consciousness.require = (p)=>
-          if _mockedRelations and _mockedRelations[p]
-            return _mockedRelations[p]
-          else
-            if p[0] == '.' or p[0] == path.sep
-              return require(path.relative(_physicalLocationOfChamber, path.join(process.cwd(), path.dirname(_path), p))) #@returnOriginalRequire(p)
+        if _opts.replace == 'all'
+          consciousness.require = (p)=>
+            original = require(compensatePhysicalDistance(p))
+            if p in [].concat(_opts.except)
+              replacement = original
             else
-              return require(p)
+              replacement = projectEntireRelation(p)
+              for ex in [].concat(_opts.except)
+                if typeof ex == 'object'
+                  for k,v of ex
+                    replacement[v] = original[v]
+            replacement
+        else
+          consciousness.require = (p)=>
+            if _mockedRelations and _mockedRelations[p]
+              _mockedRelations[p]
+            else
+              require(compensatePhysicalDistance(p))
 
 By default, the entire module is mocked, but it's open for a possibility to mock automatically only a part of an object, in the future.
 
@@ -85,35 +106,33 @@ By default, the entire module is mocked, but it's open for a possibility to mock
         reqType = typeof rel
         if reqType is "string"
           if not relationAspect
-            return projectEntireRelation(rel)
+            projectEntireRelation(rel)
 
 These methods realize mocking of an entire module.
 
       projectEntireRelation = (rel) =>
-        originalName = rel
-        rel = compensatePhysicalDistance(rel)
-        realSubject = require(rel)
-        return mockSubject(realSubject, originalName)
+        mockSubject(require(compensatePhysicalDistance(rel)))
 
       mockSubject = (subject) =>
         mockedAspects = []
         for relkey,relval of subject
-
           if typeof relval is "function" and relval.name
             mockedAspects.push relval.name
 
 Note that this is actually the place where the injected mocking framework is used.
 
-        return _illusionFactory(mockedAspects...)
+        _illusionFactory(mockedAspects...)
 
 A helper function. It recalculates the relative paths, so that if they are provided here to the require it still works.
 
       compensatePhysicalDistance = (rel) =>
-        improvedRelation = rel
-        if rel[0] == '.' or rel[0] == path.sep
-          improvedRelation =  path.relative(_physicalLocationOfChamber, path.join(process.cwd(), path.dirname(_path), rel))
-        return improvedRelation
+        if isFromMySpace(rel)
+          require.resolve(path.relative(_physicalLocationOfChamber, path.join(process.cwd(), path.dirname(_path), rel)))
+        else
+          rel
 
+      isFromMySpace = (path)=>
+        path[0] in ['.', path.sep, '..']
 A global module's property. Together with the setter methos (see *accepts* below), it realizes a requirement, that once
 we set a mocker function in the module, it is used all the time.
 Couldn't work out quickly a cleaner solution, but I'm sure it must exist...

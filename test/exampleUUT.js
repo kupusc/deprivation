@@ -12,5 +12,9 @@ var returnCfgWithHeapsnapshotExtension = function(snapshotCfg) {
 
 };
 
+var anotherGlobCalledViaNextStageDep = function() {
+    anotherGlob.secondStageGlobSync();
+};
+
 module.exports.arrangeHeapDumps = arrangeHeapDumps;
 module.exports.returnCfgWithHeapsnapshotExtension = returnCfgWithHeapsnapshotExtension;
