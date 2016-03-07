@@ -44,18 +44,24 @@ iopts: options (see below for details)
 The main and the only public method for usage, after creation of an instance.
 
       exposeInterior: =>
-        illusions = provokeIllusions()
-        awokenConsciousness(illusions)
+        awokenConsciousness(provokeIllusions())
 
-      deepenIllusions = =>
+      enterYourCave: =>
+        p = require.resolve(path.relative(_physicalLocationOfChamber, _path))
+        m = require(p)
+        processCache()
+        m
+
+      processCache = =>
+        console.log require.cache['/home/skoblins/workspace/deprivation/node_modules/glob/glob.js']
 
 With the mocked dependant modules (optional), this method does the actual trick.
  > It is a wrapper of the node's VM module
 
       awokenConsciousness = (mockedRelations) =>
         consciousness = new ->
-        replaceRealRelations(consciousness, mockedRelations)
         situation = vm.createContext(consciousness);
+        replaceRequire(consciousness, mockedRelations)
         role = new vm.Script("module = {exports: {}};" + fs.readFileSync(_path))
         assert(role.runInContext(situation))
         consciousness
@@ -80,7 +86,7 @@ If required (via the *"replace"* option), automatic mocks of dependencies are cr
               imaginedRelations[relation] = projectRelationsYourWay(relation)
         imaginedRelations
 
-      replaceRealRelations = (consciousness, _mockedRelations) =>
+      replaceRequire = (consciousness, _mockedRelations) =>
         if _opts?.replace == 'all'
           consciousness.require = (p)=>
             original = require(compensatePhysicalDistance(p))

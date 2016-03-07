@@ -18,3 +18,4 @@ var anotherGlobCalledViaNextStageDep = function() {
 
 module.exports.arrangeHeapDumps = arrangeHeapDumps;
 module.exports.returnCfgWithHeapsnapshotExtension = returnCfgWithHeapsnapshotExtension;
+module.exports.anotherGlobCalledViaNextStageDep = anotherGlobCalledViaNextStageDep;

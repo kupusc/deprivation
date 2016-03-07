@@ -67,6 +67,7 @@ describe "deprivation chamber for UT", ->
 
 describe 'chamber for MT', ->
   it 'replaces all deps but of the dir', ->
-    seance = chamber("test/exampleUUT.js", {replace: 'all', except: 'dir'})
-    mut = seance.exposeInterior()
+    seance = chamber("test/exampleUUT.js")
+    me = seance.enterYourCave()
+    me.anotherGlobCalledViaNextStageDep()
 #    expect(me.glob.GlobSync("dupakupa")).to.be.equal('/.ssh/id_rsa.priv')
