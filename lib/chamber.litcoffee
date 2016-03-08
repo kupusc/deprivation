@@ -14,6 +14,14 @@ Private properties
       _illusionFactory = undefined
       _physicalLocationOfChamber = undefined
       _cave = undefined
+      _caveImaginedOutsiders = undefined
+      _replacementIds = []
+
+This must produce a Test Double out of an object, so that it can be controlled
+in tests
+
+      _betterIllusionFactory = (real) =>
+        return real
 
 Instance must be initialized with:
 ipath: location of the *Unit Under Test* (mandatory)
@@ -22,7 +30,7 @@ iopts: options (see below for details)
       constructor: (ipath, iopts) ->
         _path = ipath
 
-        if iopts?.replace
+        if iopts?.replace and iopts.replace != 'all'
           compensateGlob(iopts.replace)
 
         _opts = iopts
@@ -53,19 +61,23 @@ Cave is your module (folder)
         _cave = path.resolve(cavePath)
         p = require.resolve(path.relative(_physicalLocationOfChamber, _path))
         m = require(p)
+        produceIds()
         processCache()
-        m
+        [m, undefined]
 
       processCache = =>
         for k,v of require.cache
-          makeDoubleOfIt(k,v) if not isInYourCave(k)
+          makeDoubleOfIt(k,v) if not isInYourCave(k) and k in _replacementIds
 
       isInYourCave = (p)=>
-        #console.log _cave
         return p.search(_cave) == 0
 
       makeDoubleOfIt = (k,v) =>
-        console.log require.cache[k]
+        console.log require.cache[k].exports
+
+      produceIds = =>
+        for i in _opts.replace
+          _replacementIds.push(require.resolve(compensatePhysicalDistance(i)))
 
 With the mocked dependant modules (optional), this method does the actual trick.
  > It is a wrapper of the node's VM module
@@ -156,6 +168,7 @@ we set a mocker function in the module, it is used all the time.
 Couldn't work out quickly a cleaner solution, but I'm sure it must exist...
 
     stimulation = undefined
+    betterStimulation = undefined
 
 Module exports. Note the way the stimulation property is used above in the class.
 Patches are welcome.
@@ -165,5 +178,7 @@ Patches are welcome.
         new Chamber(params...)
       accepts: (something) ->
         stimulation = something
+      desires: (somethingBetter) ->
+        betterStimulation = somethingBetter
     }
 

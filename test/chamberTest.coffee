@@ -5,6 +5,7 @@ myIllusions = inquisitor.createMockObject
 deprivation = require "../"
 chamber = deprivation.chamber
 deprivation.accepts(myIllusions)
+deprivation.desires(inquisitor.mockify)
 missingModule = 'missing module. I dont want this to crash.': {}
 
 
@@ -69,7 +70,7 @@ describe 'chamber for MT', ->
   it 'replaces all deps outside of the dir', ->
     myGlob = GlobSync: -> return '/.ssh/id_rsa.priv'
     seance = chamber('test/exampleUUT.js', replace:['glob'])
-    me = seance.enterYourCave('test')
+    [me, mocks] = seance.enterYourCave('test')
     me.anotherGlobCalledViaNextStageDep()
 
 #    expect(me.glob.GlobSync("dupakupa")).to.be.equal('/.ssh/id_rsa.priv')
