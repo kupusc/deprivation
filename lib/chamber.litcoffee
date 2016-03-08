@@ -13,6 +13,7 @@ Private properties
       _opts = undefined
       _illusionFactory = undefined
       _physicalLocationOfChamber = undefined
+      _cave = undefined
 
 Instance must be initialized with:
 ipath: location of the *Unit Under Test* (mandatory)
@@ -46,14 +47,25 @@ The main and the only public method for usage, after creation of an instance.
       exposeInterior: =>
         awokenConsciousness(provokeIllusions())
 
-      enterYourCave: =>
+Cave is your module (folder)
+
+      enterYourCave: (cavePath) =>
+        _cave = path.resolve(cavePath)
         p = require.resolve(path.relative(_physicalLocationOfChamber, _path))
         m = require(p)
         processCache()
         m
 
       processCache = =>
-        console.log require.cache['/home/skoblins/workspace/deprivation/node_modules/glob/glob.js']
+        for k,v of require.cache
+          makeDoubleOfIt(k,v) if not isInYourCave(k)
+
+      isInYourCave = (p)=>
+        #console.log _cave
+        return p.search(_cave) == 0
+
+      makeDoubleOfIt = (k,v) =>
+        console.log k
 
 With the mocked dependant modules (optional), this method does the actual trick.
  > It is a wrapper of the node's VM module
@@ -132,12 +144,12 @@ Note that this is actually the place where the injected mocking framework is use
 A helper function. It recalculates the relative paths, so that if they are provided here to the require it still works.
 
       compensatePhysicalDistance = (rel) =>
-        if isFromMySpace(rel)
+        if isRelative(rel)
           require.resolve(path.relative(_physicalLocationOfChamber, path.join(process.cwd(), path.dirname(_path), rel)))
         else
           rel
 
-      isFromMySpace = (path)=>
+      isRelative = (path)=>
         path[0] in ['.', path.sep, '..']
 A global module's property. Together with the setter methos (see *accepts* below), it realizes a requirement, that once
 we set a mocker function in the module, it is used all the time.

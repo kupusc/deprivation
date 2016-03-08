@@ -41,7 +41,7 @@ describe "deprivation chamber for UT", ->
     myGlob = GlobSync: -> return '/.ssh/id_rsa.priv'
     seance = chamber("test/exampleUUT.js", replace:["glob": myGlob, missingModule])
     me = seance.exposeInterior()
-    expect(me.glob.GlobSync("dupakupa")).to.be.equal('/.ssh/id_rsa.priv')
+    expect(me.glob.GlobSync('dupakupa')).to.be.equal('/.ssh/id_rsa.priv')
 
   it 'makes doubles automatically', ->
     seance = chamber("test/exampleUUT.js", replace: 'all')
@@ -66,8 +66,9 @@ describe "deprivation chamber for UT", ->
     me.anotherGlobCalledViaNextStageDep()
 
 describe 'chamber for MT', ->
-  it 'replaces all deps but of the dir', ->
-    seance = chamber("test/exampleUUT.js")
-    me = seance.enterYourCave()
+  it 'replaces all deps outside of the dir', ->
+    seance = chamber('test/exampleUUT.js')
+    me = seance.enterYourCave('test')
     me.anotherGlobCalledViaNextStageDep()
+
 #    expect(me.glob.GlobSync("dupakupa")).to.be.equal('/.ssh/id_rsa.priv')
