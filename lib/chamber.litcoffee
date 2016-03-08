@@ -56,12 +56,13 @@ The main and the only public method for usage, after creation of an instance.
       exposeInterior: =>
         awokenConsciousness(provokeIllusions())
 
+
 Cave is your module (folder)
 
       enterYourCave: (cavePath) =>
         _cave = path.resolve(cavePath)
-        #if not fs.existsSync(_cave)
-        #  throw new Error(_cave + ' doesn\'t exist!')
+        if not fs.existsSync(_cave)
+          throw new Error(_cave + ' doesn\'t exist!')
         p = require.resolve(path.relative(_physicalLocationOfChamber, _path))
         m = require(p)
         produceIds()
@@ -71,6 +72,10 @@ Cave is your module (folder)
       processCache = =>
         for k,v of require.cache
           makeDoubleOfIt(k,v) if not isInYourCave(k) and k in _replacementIds
+
+      processCacheUnconditionally = =>
+        for k,v of require.cache
+          makeDoubleOfIt(k,v) if (k in _replacementIds) or _opts.replace == 'all'
 
       isInYourCave = (p)=>
         return p.search(_cave) == 0
@@ -83,8 +88,9 @@ Cave is your module (folder)
         #console.log require.cache[k].exports
 
       produceIds = =>
-        for i in _opts.replace
-          _replacementIds.push(require.resolve(compensatePhysicalDistance(i)))
+        if _opts.replace != 'all'
+          for i in _opts.replace
+            _replacementIds.push(require.resolve(compensatePhysicalDistance(i)))
 
 With the mocked dependant modules (optional), this method does the actual trick.
  > It is a wrapper of the node's VM module

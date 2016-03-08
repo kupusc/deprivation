@@ -16,16 +16,22 @@ describe "deprivation chamber for UT", ->
     me = seance.exposeInterior()
     expect(me.arrangeHeapDumps).be.ok
     me.arrangeHeapDumps("kupadupa")
+    me.module.exports.NoRefFunc()
 
   it "provides illusions", ->
     seance = chamber("test/exampleUUT.js", replace:["glob", missingModule])
     me = seance.exposeInterior()
     inquisitor.expect(me.glob.GlobSync).once.args("kupadupa")
+    inquisitor.expect(me.glob.GlobSync).once.args("jajaja")
     me.arrangeHeapDumps("kupadupa")
+    me.module.exports.NoRefFunc()
+    me.anotherGlob.NoRefFunc()
+    me.anotherGlobCalledViaNextStageDep("dupakupa")
 
   it "provides relative illusions", ->
     seance = chamber("test/exampleUUT.js", replace:["./dep.js", missingModule])
     me = seance.exposeInterior()
+    console.log me.anotherGlob
     inquisitor.expect(me.anotherGlob.secondStageGlobSync).once.args("dupakupa")
     me.anotherGlobCalledViaNextStageDep("dupakupa")
 
@@ -73,6 +79,7 @@ describe 'chamber for MT', ->
     inquisitor.expect(mirage['node_modules/glob/glob.js'].GlobSync).once.args('bleble')
     inquisitor.expect(mirage['node_modules/glob/glob.js'].glob).once.args('bleble')
     inquisitor.expect(mirage['node_modules/glob/glob.js'].GlobSync).once.args('jojo')
+    inquisitor.expect(mirage['node_modules/glob/glob.js'].GlobSync).once.args('dep.js')
     inquisitor.expect(mirage['fakePackage/farDependancy.js'].caracole).once
     me.arrangeHeapDumps('bleble')
     me.anotherGlobCalledViaNextStageDep() # this is not mocked due to the scope, although the mock './dep' was ordered in the list above

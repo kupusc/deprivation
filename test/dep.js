@@ -11,3 +11,6 @@ function secondStageGlobSync() {
 
 module.exports.GlobSync = GlobSync;
 module.exports.secondStageGlobSync = secondStageGlobSync;
+module.exports.NoRefFunc = function() {
+    return glob.GlobSync('dep.js');
+}
