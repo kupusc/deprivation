@@ -67,10 +67,14 @@ describe "deprivation chamber for UT", ->
     me.anotherGlobCalledViaNextStageDep()
 
 describe 'chamber for MT', ->
-  it 'replaces all deps outside of the dir', ->
+  it 'replaces listed packages outside of my dir', ->
     myGlob = GlobSync: -> return '/.ssh/id_rsa.priv'
     seance = chamber('test/exampleUUT.js', replace:['glob'])
-    [me, mocks] = seance.enterYourCave('test')
+    [me, mirage] = seance.enterYourCave('test')
+    inquisitor.expect(mirage['node_modules/glob/glob.js'].GlobSync).once.args('bleble')
+    inquisitor.expect(mirage['node_modules/glob/glob.js'].glob).once.args('bleble')
+    inquisitor.expect(mirage['node_modules/glob/glob.js'].GlobSync).once.args('jojo')
+    me.arrangeHeapDumps('bleble')
     me.anotherGlobCalledViaNextStageDep()
 
 #    expect(me.glob.GlobSync("dupakupa")).to.be.equal('/.ssh/id_rsa.priv')

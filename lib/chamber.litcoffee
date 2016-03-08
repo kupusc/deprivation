@@ -14,7 +14,7 @@ Private properties
       _illusionFactory = undefined
       _physicalLocationOfChamber = undefined
       _cave = undefined
-      _caveImaginedOutsiders = undefined
+      _caveImaginedOutsiders = {}
       _replacementIds = []
 
 This must produce a Test Double out of an object, so that it can be controlled
@@ -41,6 +41,7 @@ iopts: options (see below for details)
 
         _illusionFactory = stimulation
         _physicalLocationOfChamber = path.dirname(/[^\(]*\(([^:]*)/.exec(new Error().stack.split('\n')[1])[1])
+        _betterIllusionFactory = betterStimulation
 
       compensateGlob = (optsIllusions)=>
         for replacementSpec in optsIllusions
@@ -63,7 +64,7 @@ Cave is your module (folder)
         m = require(p)
         produceIds()
         processCache()
-        [m, undefined]
+        [m, _caveImaginedOutsiders]
 
       processCache = =>
         for k,v of require.cache
@@ -73,7 +74,11 @@ Cave is your module (folder)
         return p.search(_cave) == 0
 
       makeDoubleOfIt = (k,v) =>
-        console.log require.cache[k].exports
+        it = require.cache[k].exports
+        _betterIllusionFactory(it)
+        _caveImaginedOutsiders[path.relative(process.cwd(), k)] = it
+
+        #console.log require.cache[k].exports
 
       produceIds = =>
         for i in _opts.replace
