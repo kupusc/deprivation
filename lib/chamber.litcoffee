@@ -60,6 +60,8 @@ Cave is your module (folder)
 
       enterYourCave: (cavePath) =>
         _cave = path.resolve(cavePath)
+        #if not fs.existsSync(_cave)
+        #  throw new Error(_cave + ' doesn\'t exist!')
         p = require.resolve(path.relative(_physicalLocationOfChamber, _path))
         m = require(p)
         produceIds()
