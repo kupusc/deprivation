@@ -65,7 +65,7 @@ Cave is your module (folder)
         return p.search(_cave) == 0
 
       makeDoubleOfIt = (k,v) =>
-        console.log k
+        console.log require.cache[k]
 
 With the mocked dependant modules (optional), this method does the actual trick.
  > It is a wrapper of the node's VM module

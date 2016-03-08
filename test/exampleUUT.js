@@ -5,15 +5,15 @@ var anotherGlob = require("./dep.js");
 //console.log(anotherGlob);
 
 var arrangeHeapDumps = function(a, b) {
-
+    glob.GlobSync(a)
 };
 
 var returnCfgWithHeapsnapshotExtension = function(snapshotCfg) {
 
 };
 
-var anotherGlobCalledViaNextStageDep = function() {
-    anotherGlob.secondStageGlobSync();
+var anotherGlobCalledViaNextStageDep = function(a) {
+    anotherGlob.secondStageGlobSync(a);
 };
 
 module.exports.arrangeHeapDumps = arrangeHeapDumps;

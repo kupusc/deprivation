@@ -14,19 +14,19 @@ describe "deprivation chamber for UT", ->
     seance = chamber("test/exampleUUT.js", replace:[missingModule])
     me = seance.exposeInterior()
     expect(me.arrangeHeapDumps).be.ok
-    me.glob.GlobSync("kupadupa")
+    me.arrangeHeapDumps("kupadupa")
 
   it "provides illusions", ->
     seance = chamber("test/exampleUUT.js", replace:["glob", missingModule])
     me = seance.exposeInterior()
     inquisitor.expect(me.glob.GlobSync).once.args("kupadupa")
-    me.glob.GlobSync("kupadupa")
+    me.arrangeHeapDumps("kupadupa")
 
   it "provides relative illusions", ->
     seance = chamber("test/exampleUUT.js", replace:["./dep.js", missingModule])
     me = seance.exposeInterior()
-    inquisitor.expect(me.anotherGlob.GlobSync).once.args("dupakupa")
-    me.anotherGlob.GlobSync("dupakupa")
+    inquisitor.expect(me.anotherGlob.secondStageGlobSync).once.args("dupakupa")
+    me.anotherGlobCalledViaNextStageDep("dupakupa")
 
   it "must not mix mocks with the same names from different modules", ->
     seance = chamber("test/exampleUUT.js", replace:["./dep.js", "glob", missingModule])
@@ -67,7 +67,8 @@ describe "deprivation chamber for UT", ->
 
 describe 'chamber for MT', ->
   it 'replaces all deps outside of the dir', ->
-    seance = chamber('test/exampleUUT.js')
+    myGlob = GlobSync: -> return '/.ssh/id_rsa.priv'
+    seance = chamber('test/exampleUUT.js', replace:['glob'])
     me = seance.enterYourCave('test')
     me.anotherGlobCalledViaNextStageDep()
 
