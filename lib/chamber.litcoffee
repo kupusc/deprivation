@@ -58,10 +58,9 @@ iopts: options (see below for details)
         _caveImaginedOutsiders
 
 
-      enterYourCave: (cavePath) =>
+      enterYourCave: =>
+        cavePath = path.dirname(_path)
         _cave = path.resolve(cavePath)
-        if not fs.existsSync(_cave)
-          throw new Error(_cave + ' doesn\'t exist!')
         p = require.resolve(path.relative(_physicalLocationOfChamber, _path))
         invalidateCache()
         m = require(p)

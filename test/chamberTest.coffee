@@ -71,7 +71,7 @@ describe "deprivation chamber for UT", ->
 describe 'chamber for MT', ->
   it 'replaces listed packages outside of my dir', ->
     seance = chamber('test/exampleUUT.js', replace:['glob', '../fakePackage/farDependancy', './dep'])
-    me = seance.enterYourCave('test')
+    me = seance.enterYourCave()
     mirage = seance.getReplacements()
     inquisitor.expect(mirage['node_modules/glob/glob.js'].GlobSync).once.args('bleble')
     inquisitor.expect(mirage['node_modules/glob/glob.js'].glob).once.args('bleble')
@@ -82,15 +82,4 @@ describe 'chamber for MT', ->
     me.anotherGlobCalledViaNextStageDep() # this is not mocked due to the scope, although the mock './dep' was ordered in the list above
     me.farCall()
     glob.GlobSync('*')
-
-
-  it 'replaces listed own stuff if used from outside', ->
-    seance = chamber('test/exampleUUT.js', replace:['glob', './dep'])
-    me = seance.enterYourCave('test')
-    mirage = seance.getReplacements()
-#    inquisitor.expect(mirage['node_modules/glob/glob.js'].GlobSync).once.args('bleble')
-#    inquisitor.expect(mirage['node_modules/glob/glob.js'].glob).once.args('bleble')
-#    inquisitor.expect(mirage['node_modules/glob/glob.js'].GlobSync).once.args('jojo')
-#    inquisitor.expect(mirage['node_modules/glob/glob.js'].GlobSync).once.args('dep.js')
-    me.fourthStageDep()
 
