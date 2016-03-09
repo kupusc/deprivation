@@ -7,13 +7,6 @@ deprivation = require "../"
 chamber = deprivation.chamber
 deprivation.desires(inquisitor.mockify)
 
-xdescribe 'inquisitor playground', ->
-  it 'mocks function', ->
-    func = -> return 'something'
-    inquisitor.mockify(func)
-
-    expect(func()).equal('nothing')
-
 
 describe "deprivation chamber for UT", ->
 
@@ -69,7 +62,7 @@ describe "deprivation chamber for UT", ->
     expect(me.arrangeHeapDumps('dupakupa')).to.be.equal('/.ssh/id_rsa.priv')
 
 describe 'chamber for MT', ->
-  it 'replaces listed packages outside of my dir', ->
+  it 'replaces listed modules outside of my dir', ->
     seance = chamber('test/exampleUUT.js', replace:['glob', '../fakePackage/farDependancy'])
     me = seance.enterYourCave()
     mirage = seance.getReplacements()
@@ -83,3 +76,16 @@ describe 'chamber for MT', ->
     me.farCall()
     glob.GlobSync('*')
 
+  xit 'replaces automatically other implementation modules from my project (outside of my dir), but not the ones from the node_modules dir', ->
+    seance = chamber('test/exampleUUT.js', replace:['glob', '../*'])
+    me = seance.enterYourCave()
+    mirage = seance.getReplacements()
+    inquisitor.expect(mirage['node_modules/glob/glob.js'].GlobSync).once.args('bleble')
+    inquisitor.expect(mirage['node_modules/glob/glob.js'].glob).once.args('bleble')
+    inquisitor.expect(mirage['node_modules/glob/glob.js'].GlobSync).once.args('jojo')
+    inquisitor.expect(mirage['node_modules/glob/glob.js'].GlobSync).once.args('dep.js')
+    inquisitor.expect(mirage['fakePackage/farDependancy.js'].caracole).once
+    me.arrangeHeapDumps('bleble')
+    me.anotherGlobCalledViaNextStageDep() # this is not mocked due to the scope, although the mock './dep' was ordered in the list above
+    me.farCall()
+    glob.GlobSync('*')
