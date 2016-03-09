@@ -1,76 +1,72 @@
 expect = require("chai").expect
 inquisitor = require "@nokia/inquisitor"
+glob = require('glob')
 
 myIllusions = inquisitor.createMockObject
 deprivation = require "../"
 chamber = deprivation.chamber
-deprivation.accepts(myIllusions)
 deprivation.desires(inquisitor.mockify)
-missingModule = 'missing module. I dont want this to crash.': {}
+
+xdescribe 'inquisitor playground', ->
+  it 'mocks function', ->
+    func = -> return 'something'
+    inquisitor.mockify(func)
+
+    expect(func()).equal('nothing')
 
 
 describe "deprivation chamber for UT", ->
 
   it "exposes my interior", ->
-    seance = chamber("test/exampleUUT.js", replace:[missingModule])
+    seance = chamber("test/exampleUUT.js")
     me = seance.exposeInterior()
     expect(me.arrangeHeapDumps).be.ok
     me.arrangeHeapDumps("kupadupa")
     me.module.exports.NoRefFunc()
 
   it "provides illusions", ->
-    seance = chamber("test/exampleUUT.js", replace:["glob", missingModule])
+    seance = chamber("test/exampleUUT.js", replace:["glob"])
     me = seance.exposeInterior()
-    inquisitor.expect(me.glob.GlobSync).once.args("kupadupa")
+    mocks = seance.getReplacements()
+    inquisitor.expect(mocks['node_modules/glob/glob.js'].GlobSync).once.args("kupadupa")
     inquisitor.expect(me.glob.GlobSync).once.args("jajaja")
+    inquisitor.expect(me.glob.GlobSync).once.args("dep.js")
+    inquisitor.expect(me.glob.GlobSync).once.args("jojo")
+    inquisitor.expect(me.glob.glob).once.args("bleble")
+    inquisitor.expect(mocks['node_modules/glob/glob.js'].GlobSync).once.args("dep.js")
+
     me.arrangeHeapDumps("kupadupa")
     me.module.exports.NoRefFunc()
     me.anotherGlob.NoRefFunc()
     me.anotherGlobCalledViaNextStageDep("dupakupa")
 
   it "provides relative illusions", ->
-    seance = chamber("test/exampleUUT.js", replace:["./dep.js", missingModule])
+    seance = chamber("test/exampleUUT.js", replace:["./dep"])
     me = seance.exposeInterior()
-    console.log me.anotherGlob
+    mocks = seance.getReplacements()
     inquisitor.expect(me.anotherGlob.secondStageGlobSync).once.args("dupakupa")
+    inquisitor.expect(mocks['test/dep.js'].NoRefFunc).once
     me.anotherGlobCalledViaNextStageDep("dupakupa")
 
   it "must not mix mocks with the same names from different modules", ->
-    seance = chamber("test/exampleUUT.js", replace:["./dep.js", "glob", missingModule])
+    seance = chamber("test/exampleUUT.js", replace:["glob", './dep.js'])
     me = seance.exposeInterior()
+    mocks = seance.getReplacements()
     seq = new inquisitor.Sequence()
     inquisitor.expect(me.glob.GlobSync).once.args("dupakupa").in(seq)
-    inquisitor.expect(me.anotherGlob.GlobSync).once.args("dupakupa").in(seq)
+    inquisitor.expect(me.anotherGlob.depGlobSync).once.args("dupakupa").in(seq)
     me.glob.GlobSync("dupakupa")
-    me.anotherGlob.GlobSync("dupakupa")
+    me.anotherGlob.depGlobSync("dupakupa")
 
   it 'allows doubles through options', ->
     myGlob = GlobSync: -> return '/.ssh/id_rsa.priv'
-    seance = chamber("test/exampleUUT.js", replace:["glob": myGlob, missingModule])
+    seance = chamber("test/exampleUUT.js", replace:['glob': myGlob])
     me = seance.exposeInterior()
+    mocks = seance.getReplacements()
+    expect(mocks['node_modules/glob/glob.js'].GlobSync()).to.be.equal('/.ssh/id_rsa.priv')
+    expect(mocks['node_modules/glob/glob.js'].glob).to.be.equal(undefined)
+    expect(glob.GlobSync('*')).to.be.not.equal('/.ssh/id_rsa.priv')
     expect(me.glob.GlobSync('dupakupa')).to.be.equal('/.ssh/id_rsa.priv')
-
-  it 'makes doubles automatically', ->
-    seance = chamber("test/exampleUUT.js", replace: 'all')
-    me = seance.exposeInterior()
-    inquisitor.expect(me.glob.glob).once.args('dupakupa')
-    inquisitor.expect(me.glob.GlobSync).once.args('bleble')
-    me.glob.glob("dupakupa")
-    me.glob.GlobSync("bleble")
-
-  it 'respects exceptions', ->
-    seance = chamber("test/exampleUUT.js", {replace: 'all', except: 'glob'})
-    me = seance.exposeInterior()
-    me.glob.glob("dupakupa")
-    me.glob.GlobSync("bleble")
-
-  it 'respects fine-grained exceptions, lists end everything', ->
-    seance = chamber("test/exampleUUT.js", {replace: 'all', except: [{'glob': 'GlobSync'}, './dep.js']})
-    me = seance.exposeInterior()
-    inquisitor.expect(me.glob.glob).once.args('dupakupa')
-    me.glob.glob("dupakupa")
-    me.glob.GlobSync("bleble")
-    me.anotherGlobCalledViaNextStageDep()
 
 describe 'chamber for MT', ->
   it 'replaces listed packages outside of my dir', ->

@@ -1,16 +1,16 @@
-var glob = require("glob");
+var globen = require("glob");
 
-function GlobSync() {
+function depGlobSync() {
     console.log("dep: GlobSync");
 }
 
 function secondStageGlobSync() {
-    glob.GlobSync("jojo");
-    glob.glob('bleble')
+    globen.GlobSync("jojo");
+    globen.glob('bleble')
 }
 
-module.exports.GlobSync = GlobSync;
+module.exports.depGlobSync = depGlobSync;
 module.exports.secondStageGlobSync = secondStageGlobSync;
 module.exports.NoRefFunc = function() {
-    return glob.GlobSync('dep.js');
+    return globen.GlobSync('dep.js');
 }
