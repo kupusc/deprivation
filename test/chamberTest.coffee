@@ -76,7 +76,7 @@ describe 'chamber for MT', ->
     me.farCall()
     glob.GlobSync('*')
 
-  xit 'replaces automatically other implementation modules from my project (outside of my dir), but not the ones from the node_modules dir', ->
+  it 'replaces automatically other implementation modules from my project (outside of my dir), but not the ones from the node_modules dir', ->
     seance = chamber('test/exampleUUT.js', replace:['glob', '../*'])
     me = seance.enterYourCave()
     mirage = seance.getReplacements()

@@ -107,8 +107,10 @@ iopts: options (see below for details)
       normalizeReplacements = (replacements)=>
         for replacement in replacements
           if typeof replacement is 'string'
-            #_replacementIds.push(require.resolve(compensatePhysicalDistance(replacement)))
-            _replacementIds.push(normalizePath(replacement))
+            if replacement is '../*'
+              seekAndReplaceAllImplsNotFromNodeModules()
+            else
+              _replacementIds.push(normalizePath(replacement))
           else
             if typeof replacement is 'object'
               for k,v of replacement
@@ -116,6 +118,11 @@ iopts: options (see below for details)
 
       normalizePath = (p) =>
         require.resolve(compensatePhysicalDistance(p))
+
+      seekAndReplaceAllImplsNotFromNodeModules = =>
+        for k,v of require.cache
+          if k.search(path.resolve(path.dirname(_path))) == -1 and k.search(path.join(process.cwd(), 'node_modules'))
+            _replacementIds.push(k)
 
       replaceRequire = (consciousness) =>
         consciousness.require = (p)=>
