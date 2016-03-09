@@ -66,7 +66,7 @@ iopts: options (see below for details)
         invalidateCache()
         m = require(p)
         processCache()
-        [m, _caveImaginedOutsiders]
+        m
 
       invalidateCache = =>
         for k,v of require.cache

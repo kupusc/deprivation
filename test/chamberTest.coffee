@@ -71,7 +71,8 @@ describe "deprivation chamber for UT", ->
 describe 'chamber for MT', ->
   it 'replaces listed packages outside of my dir', ->
     seance = chamber('test/exampleUUT.js', replace:['glob', '../fakePackage/farDependancy', './dep'])
-    [me, mirage] = seance.enterYourCave('test')
+    me = seance.enterYourCave('test')
+    mirage = seance.getReplacements()
     inquisitor.expect(mirage['node_modules/glob/glob.js'].GlobSync).once.args('bleble')
     inquisitor.expect(mirage['node_modules/glob/glob.js'].glob).once.args('bleble')
     inquisitor.expect(mirage['node_modules/glob/glob.js'].GlobSync).once.args('jojo')
