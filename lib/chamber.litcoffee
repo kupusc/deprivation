@@ -61,6 +61,9 @@ iopts: options (see below for details)
       enterYourCave: =>
         cavePath = path.dirname(_path)
         _cave = path.resolve(cavePath)
+        for i in _replacementIds
+          if i.search(_cave) == 0
+            throw Error('modification of ' + i + ' not allowed, it belongs to the tested module! Remove it from the \'replace\' parameter')
         p = require.resolve(path.relative(_physicalLocationOfChamber, _path))
         invalidateCache()
         m = require(p)
