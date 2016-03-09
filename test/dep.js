@@ -1,7 +1,7 @@
 var globen = require("glob");
+var farDep = require('../fakePackage/farDependancy');
 
 function depGlobSync() {
-    console.log("dep: GlobSync");
 }
 
 function secondStageGlobSync() {
@@ -9,8 +9,13 @@ function secondStageGlobSync() {
     globen.glob('bleble')
 }
 
+function thirdStageDep() {
+    farDep.callAgainParent();
+}
+
 module.exports.depGlobSync = depGlobSync;
 module.exports.secondStageGlobSync = secondStageGlobSync;
 module.exports.NoRefFunc = function() {
     return globen.GlobSync('dep.js');
 }
+module.exports.thirdStageDep = thirdStageDep;

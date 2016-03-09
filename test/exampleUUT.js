@@ -6,7 +6,7 @@ var farDep = require('../fakePackage/farDependancy');
 //console.log(anotherGlob);
 
 var arrangeHeapDumps = function(a, b) {
-    glob.GlobSync(a)
+    return glob.GlobSync(a)
 };
 
 var returnCfgWithHeapsnapshotExtension = function(snapshotCfg) {
@@ -23,11 +23,15 @@ var farCall = function() {
 }
 
 module.exports.arrangeHeapDumps = function(a, b) {
-    glob.GlobSync(a)
+    return glob.GlobSync(a)
 };
 module.exports.returnCfgWithHeapsnapshotExtension = returnCfgWithHeapsnapshotExtension;
 module.exports.anotherGlobCalledViaNextStageDep = anotherGlobCalledViaNextStageDep;
 module.exports.farCall = farCall;
 module.exports.NoRefFunc = function() {
     return glob.GlobSync('jajaja');
+}
+
+module.exports.fourthStageDep = function() {
+    anotherGlob.thirdStageDep();
 }
