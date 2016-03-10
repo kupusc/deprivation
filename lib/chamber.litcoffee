@@ -59,10 +59,12 @@ iopts: options (see below for details)
         processCacheIncludingMyself()
         consciousness
 
+      whitebox: => @exposeInterior()
+
       getTestDoubles: =>
         _caveImaginedOutsiders
 
-      start: =>
+      blackbox: =>
         cavePath = path.dirname(_path)
         _cave = path.resolve(cavePath)
         for i in _replacementIds
