@@ -18,12 +18,12 @@ Class **Chamber** is the main part of the deprivation package.
       _replacementIds = []
       _replacementObjects = {}
       _replacementObjectsWithOriginalPaths = {}
+      _automaticReplacement = false
 
 This must produce a Test Double out of an object, so that it can be controlled
 in tests
 
-      _betterIllusionFactory = (real) =>
-        return real
+      _betterIllusionFactory = undefined
 
 Instance must be initialized with:
 ipath: location of the *Unit Under Test* (mandatory)
@@ -39,13 +39,17 @@ iopts: options (see below for details)
         _replacementIds = []
         _replacementObjects = {}
         _replacementObjectsWithOriginalPaths = {}
+        _automaticReplacement = false
 
         _physicalLocationOfChamber = path.dirname(/[^\(]*\(([^:]*)/.exec(new Error().stack.split('\n')[1])[1])
         _path = ipath
         if iopts?.replace
           normalizeReplacements(iopts.replace)
         _opts = iopts
-        _betterIllusionFactory = betterStimulation
+
+        _betterIllusionFactory = iopts?.replacer
+        if not _betterIllusionFactory and _replacementIds.length
+          throw new Error('if you specify full moules in the \'replace\' option, please specify the \'replacer\' as well')
 
 
       exposeInterior: =>
@@ -92,8 +96,12 @@ iopts: options (see below for details)
           delete require.cache[i]
 
       processCache = =>
+        if _automaticReplacement
+          seekAndReplaceAllImplsNotFromNodeModules()
         for i in _replacementIds
-          if not isInYourCave(i) and require.cache[i]
+          if not isInYourCave(i)
+            if not require.cache[i]
+              require.cache[i] = exports: {}
             normRelativePath = path.relative(process.cwd(), normalizePath(i))
             _betterIllusionFactory(require.cache[i].exports)
             _caveImaginedOutsiders[normRelativePath] = require.cache[i].exports
@@ -104,7 +112,11 @@ iopts: options (see below for details)
             _caveImaginedOutsiders[normRelativePath] = require.cache[k].exports
 
       processCacheIncludingMyself = =>
+        if _automaticReplacement
+          seekAndReplaceAllImplsNotFromNodeModules()
         for i in _replacementIds
+          if not require.cache[i]
+            require.cache[i] = exports: {}
           it = require.cache[i].exports
           normRelativePath = path.relative(process.cwd(), normalizePath(i))
           _betterIllusionFactory(it)
@@ -115,9 +127,6 @@ iopts: options (see below for details)
           it = _replacementObjects[k]
           _caveImaginedOutsiders[normRelativePath] = it
 
-      processGlobs = (m)=>
-        #cl m
-
       isInYourCave = (p)=>
         return p.search(_cave) == 0
 
@@ -125,7 +134,7 @@ iopts: options (see below for details)
         for replacement in replacements
           if typeof replacement is 'string'
             if replacement is '../*'
-              seekAndReplaceAllImplsNotFromNodeModules()
+              _automaticReplacement = true
             else
               _replacementIds.push(normalizePath(replacement))
           else
@@ -141,7 +150,7 @@ iopts: options (see below for details)
         for k,v of require.cache
           myFolder = path.resolve(path.dirname(_path))
           modulesFolder = path.join(process.cwd(), 'node_modules')
-          if k.search(myFolder) < 0 and k.search(modulesFolder) != 0 and k.search(process.cwd()) >= 0
+          if k.search(myFolder) != 0 and k.search(modulesFolder) != 0 and k.search(process.cwd()) >= 0
             _replacementIds.push(k)
 
       replaceRequire = (consciousness) =>
@@ -167,7 +176,8 @@ A global module's property. Together with the setter methos (see *accepts* below
 we set a mocker function in the module, it is used all the time.
 Couldn't work out quickly a cleaner solution, but I'm sure it must exist...
 
-    betterStimulation = undefined
+    betterStimulation = (real) =>
+      return real
 
 Module exports. Note the way the stimulation property is used above in the class.
 Patches are welcome.

@@ -4,7 +4,6 @@ glob = require('glob')
 deprivation = require "../"
 chamber = deprivation.chamber
 inquisitor = require "@nokia/inquisitor"
-deprivation.desires(inquisitor.mockify)
 cl = console.log.bind(this, 'chamberTest.coffee --->')
 #
 #
@@ -17,7 +16,7 @@ describe "deprivation chamber for UT", ->
     me.module.exports.NoRefFunc()
 
   it "provides illusions", ->
-    seance = chamber("test/exampleUUT.js", replace:["glob"])
+    seance = chamber("test/exampleUUT.js", replace:["glob"], replacer: inquisitor.mockify)
     me = seance.whitebox()
     mocks = seance.getTestDoubles()
     inquisitor.expect(mocks['node_modules/glob/glob.js'].GlobSync).once.args("kupadupa")
@@ -33,7 +32,7 @@ describe "deprivation chamber for UT", ->
     me.anotherGlobCalledViaNextStageDep("dupakupa")
 
   it "provides relative illusions", ->
-    seance = chamber("test/exampleUUT.js", replace:["./dep"])
+    seance = chamber("test/exampleUUT.js", replace:["./dep"], replacer: inquisitor.mockify)
     me = seance.whitebox()
     mocks = seance.getTestDoubles()
     inquisitor.expect(me.anotherGlob.secondStageGlobSync).once.args("dupakupa")
@@ -41,7 +40,7 @@ describe "deprivation chamber for UT", ->
     me.anotherGlobCalledViaNextStageDep("dupakupa")
 
   it "must not mix mocks with the same names from different modules", ->
-    me = chamber("test/exampleUUT.js", replace:["glob", './dep.js']).whitebox()
+    me = chamber("test/exampleUUT.js", replace:["glob", './dep.js'], replacer: inquisitor.mockify).whitebox()
     seq = new inquisitor.Sequence()
     inquisitor.expect(me.glob.GlobSync).once.args("dupakupa").in(seq)
     inquisitor.expect(me.anotherGlob.depGlobSync).once.args("dupakupa").in(seq)
@@ -50,7 +49,7 @@ describe "deprivation chamber for UT", ->
 
   it 'allows doubles through options', ->
     myGlob = GlobSync: -> return '/.ssh/id_rsa.priv'
-    me = chamber("test/exampleUUT.js", replace:['glob': myGlob]).whitebox()
+    me = chamber("test/exampleUUT.js", replace:['glob': myGlob], replacer: inquisitor.mockify).whitebox()
     expect(glob.GlobSync('*')).to.be.not.equal('/.ssh/id_rsa.priv')
     expect(me.arrangeHeapDumps('dupakupa')).to.be.equal('/.ssh/id_rsa.priv')
 
@@ -70,14 +69,14 @@ describe 'chamber for MT', ->
     inquisitor.expect(mock['fakePackage/farDependancy.js'].caracole).once
 
   it 'replaces listed modules outside of my dir', ->
-    seance = chamber('test/exampleUUT.js', replace:['glob', '../fakePackage/farDependancy'])
+    seance = chamber('test/exampleUUT.js', replace:['glob', '../fakePackage/farDependancy'], replacer: inquisitor.mockify)
     me = seance.blackbox()
     mocks = seance.getTestDoubles()
     commonExpects(mocks)
     stimulation(me)
 
   it 'replaces automatically other implementation modules from my project (outside of my dir), but not the ones from the node_modules dir', ->
-    seance = chamber('test/exampleUUT.js', replace:['glob', '../*'])
+    seance = chamber('test/exampleUUT.js', replace:['glob', '../*'], replacer: inquisitor.mockify)
     me = seance.blackbox()
     mocks = seance.getTestDoubles()
     commonExpects(mocks)
@@ -89,7 +88,7 @@ describe 'chamber for MT', ->
     expect(me.callGlobSync('łochocho')).to.be.equal('jojojoa')
 
   it 'mixes stubs and mocks', ->
-    seance = chamber('test/exampleUUT.js', replace:['glob': {GlobSync: -> return 'jojojoa'}, '../*'])
+    seance = chamber('test/exampleUUT.js', replace:['glob': {GlobSync: -> return 'jojojoa'}, '../*'], replacer: inquisitor.mockify)
     me = seance.blackbox()
     double = seance.getTestDoubles()
     inquisitor.expect(double['fakePackage/farDependancy.js'].caracole).once

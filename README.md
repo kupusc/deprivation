@@ -100,7 +100,7 @@ Leads to a different result:
     var myGlob = {GlobSync: function() {return './.ssh/id_rsa.priv'}}
     var session = chamber('./implementation.js', {replace:[{'glob': myGlob}]});
     var uut = session.whitebox();
-    
+
     // all calls return './.ssh/id_rsa.priv'
     uut.glob.GlobSync('something');
     uut.callAnotherGlob('something');
