@@ -2,14 +2,10 @@ var deprivation = require("../");
 var chamber = deprivation.chamber;
 
 var myReplacer = function (obj) {
-    newObj = new function () {
-    };
     Object.keys(obj).forEach(function (item) {
         spyOn(obj, item);
-        newObj[item] = obj.item;
     });
-    return Object.keys(obj);
-}
+};
 
 var seance, sut, spies;
 

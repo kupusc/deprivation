@@ -1,6 +1,6 @@
 # Deprivation
 
-This module facilitate *whitebox* and *blackbox* testing (binding it with conventional UT and MT paradigms) of *nodejs* applications.
+This module facilitates *whitebox* and *blackbox* testing (binding it with conventional UT and MT paradigms) of *nodejs* applications.
 
  > We define a module as a folder with implementations.
 
@@ -75,7 +75,7 @@ Example dependency of *UUT*.
 
  - the UUT code is 'loaded' (= all the *require* statements are executed in the *UUT*)
  - the dependencies are replaced after exposition of the *UUT*
- - replacement in not transitive!
+ - replacement is not transitive!
 
 ```javascript
 // let's get rid of glob.GlobSync dependency
@@ -94,7 +94,7 @@ Example dependency of *UUT*.
 #### Through an option
 
 Leads to a different result:
- - if the replacement is an object, the require initialization code of the replaced dependancies is not executed
+ - if the replacement is an object, the require initialization code of the replaced dependencies is not executed
  - if the replacement is a string (as in the require statement), the require initialization code **is** executed
  - replacement is transitive (it is replaced globally)
 
