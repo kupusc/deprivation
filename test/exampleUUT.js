@@ -1,12 +1,12 @@
 var glob = require('glob');
 var anotherGlob = require('./dep.js');
 var farDep = require('../fakePackage/farDependancy');
-//require('missing module. I dont want this to crash.');
+var cl = console.log.bind(this, 'exampleUUT ---> ');
 
 //console.log(anotherGlob);
 
-var arrangeHeapDumps = function(a, b) {
-    return glob.GlobSync(a)
+var arrangeHeapDumps = function(a) {
+    return glob.GlobSync(a);
 };
 
 var returnCfgWithHeapsnapshotExtension = function(snapshotCfg) {
@@ -22,8 +22,8 @@ var farCall = function() {
     farDep.caracole();
 }
 
-module.exports.arrangeHeapDumps = function(a, b) {
-    return glob.GlobSync(a)
+module.exports.arrangeHeapDumps = function(a) {
+    return glob.GlobSync(a);
 };
 module.exports.returnCfgWithHeapsnapshotExtension = returnCfgWithHeapsnapshotExtension;
 module.exports.anotherGlobCalledViaNextStageDep = anotherGlobCalledViaNextStageDep;
@@ -34,4 +34,9 @@ module.exports.NoRefFunc = function() {
 
 module.exports.fourthStageDep = function() {
     anotherGlob.thirdStageDep();
+}
+
+module.exports.callGlobSync = function(a){
+    //cl(glob);
+    return glob.GlobSync(a);
 }
