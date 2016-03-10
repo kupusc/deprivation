@@ -2,6 +2,8 @@
 
 This module facilitate *whitebox* and *blackbox* testing (binding it with conventional UT and MT paradigms) of *nodejs* applications.
 
+ > We define a module as a folder with implementations.
+
 - *whitebox unit*
   - 'grants' a full access to an object, without the need to export everything in order to test it.
     useful e.g. in *TDD* (test small increments without exposing every method), and writing fine-grained tests.
@@ -93,8 +95,9 @@ Example dependency of *UUT*.
 #### Through an option
 
 Leads to a different result:
- - require initialization code of the dependency is not executed
- - replacement is transitive
+ - if the replacement is an object, the require initialization code of the replaced dependancies is not executed
+ - if the replacement is a string (as in the require statement), the require initialization code **is** executed
+ - replacement is transitive (it is replaced globally)
 
 ```javascript
     var myGlob = {GlobSync: function() {return './.ssh/id_rsa.priv'}}
@@ -105,5 +108,48 @@ Leads to a different result:
     uut.glob.GlobSync('something');
     uut.callAnotherGlob('something');
 ```
+#### Through an option, with more automation
 
-Refer to the *test/chamberTest.coffee* for more examples.
+If a function exists, which accepts an object, and returns it's *test double*,
+
+```javascript
+// A jasmine spy-maker example
+
+    var myReplacer = function (obj) {
+        Object.keys(obj).forEach(function (item) {
+            spyOn(obj, item);
+        });
+    };
+```
+it can be passed on with the *replacer* option.
+
+```javascript
+    seance = chamber("myModule/impl.js", {replace: ['glob', '../*'], replacer: myReplacer});
+```
+
+In the above example
+ - the magical '../*' string means that all implementations outside of *myModule* folder will be automatically transformed into spies. This omits the *node_module* folder.
+ - due to the above, the *glob* package is added explicitly, and will be automatically turned into a spy,
+
+An example test suite (jasmine/mocha):
+
+```javascript
+    beforeEach(function () {
+        sut = seance.blackbox();
+        spies = seance.getTestDoubles();
+    });
+```
+*spies* above are the spy objects references, stored in a dictionary. This allows to work with objects, that are inaccessible from the module's public interface.
+
+The expectation may be set, using the obtained references.
+
+```javascript
+    it('uses GlobSync', function () {
+        sut.arrangeHeapDumps('bleble');
+        expect(spies['node_modules/glob/glob.js'].GlobSync).toHaveBeenCalled();
+    });
+```
+
+Test doubles are accessed using the path relative to the process current directory. This is the most readable way to specify, which test double object is referenced (the *glob* package may be used by other sub-packages, in different versions, etc.)
+
+ > Refer to the test/\*.\* files for more examples.
