@@ -49,6 +49,10 @@ iopts: options (see below for details)
 
 
       exposeInterior: =>
+        cl 'Deprecated! Use the \'whitebox\' method instead!'
+        @exposeInterior()
+
+      whitebox: =>
         consciousness = new ->
         consciousness.console = console
         situation = vm.createContext(consciousness);
@@ -58,8 +62,6 @@ iopts: options (see below for details)
         assert(role.runInContext(situation))
         processCacheIncludingMyself()
         consciousness
-
-      whitebox: => @exposeInterior()
 
       getTestDoubles: =>
         _caveImaginedOutsiders
