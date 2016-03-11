@@ -43,14 +43,16 @@ iopts: options (see below for details)
 
         _physicalLocationOfChamber = path.dirname(/[^\(]*\(([^:]*)/.exec(new Error().stack.split('\n')[1])[1])
         _path = ipath
+
         if iopts?.replace
           normalizeReplacements(iopts.replace)
+
         _opts = iopts
 
         _betterIllusionFactory = iopts?.replacer
-        if not _betterIllusionFactory and _replacementIds.length
-          throw new Error('if you specify full moules in the \'replace\' option, please specify the \'replacer\' as well')
 
+        if(_replacementIds.length or _automaticReplacement) and not _betterIllusionFactory
+          throw new Error('if you specify full modules in the \'replace\' option, please specify the \'replacer\' as well')
 
       exposeInterior: =>
         cl 'Deprecated! Use the \'whitebox\' method instead!'
