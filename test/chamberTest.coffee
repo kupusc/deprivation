@@ -57,7 +57,7 @@ describe 'chamber for MT', ->
 
   stimulation = (uut)->
     uut.arrangeHeapDumps('bleble')
-    uut.anotherGlobCalledViaNextStageDep() # this is not mocked due to the scope, although the mock './dep' was ordered in the list above
+    uut.anotherGlobCalledViaNextStageDep()
     uut.farCall()
     glob.GlobSync('*')
 
@@ -80,6 +80,16 @@ describe 'chamber for MT', ->
     me = seance.blackbox()
     mocks = seance.getTestDoubles()
     commonExpects(mocks)
+    stimulation(me)
+
+  it 'replaces automatically other implementation modules from my project (including my dir), but not the ones from the node_modules dir', ->
+    seance = chamber('test/exampleUUT.js', replace:['glob', '*'], replacer: inquisitor.mockify)
+    me = seance.blackbox()
+    mocks = seance.getTestDoubles()
+    inquisitor.expect(mocks['test/dep.js'].secondStageGlobSync).once
+    inquisitor.expect(mocks['test/dep.js'].NoRefFunc).once
+    inquisitor.expect(mocks['node_modules/glob/glob.js'].GlobSync).once
+    inquisitor.expect(mocks['fakePackage/farDependancy.js'].caracole).once
     stimulation(me)
 
   it 'stubs (mocks shouldn\'t be called)', ->
