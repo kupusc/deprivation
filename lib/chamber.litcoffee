@@ -55,7 +55,7 @@ iopts: options (see below for details)
 
       exposeInterior: =>
         cl 'Deprecated! Use the \'whitebox\' method instead!'
-        @exposeInterior()
+        @whitebox()
 
       whitebox: =>
         invalidateCache()
