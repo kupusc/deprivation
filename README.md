@@ -134,6 +134,8 @@ In the above example
  - the magical '../\*' string means that all implementations outside of *myModule* folder will be automatically transformed into spies. This omits the *node_module* folder.
  - due to the above, the *glob* package is added explicitly, and will be automatically turned into a mock,
 
+ > '*' replaces all implementations (within the same folder too!)
+
 An example test suite (jasmine/mocha):
 
 ```javascript

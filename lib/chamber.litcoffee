@@ -89,8 +89,9 @@ iopts: options (see below for details)
           delete require.cache[i]
 
       processCache = =>
-        if _automaticReplacement
-          seekAndReplaceAllImplsNotFromNodeModules()
+        switch _automaticReplacement
+          when 'module' then seekAndReplaceAllImplsNotFromMyFolder()
+          when 'ultimate' then seekAndReplaceAllImplsNotFromNodeModules()
         for i in _replacementIds
           if not require.cache[i]
             require.cache[i] = exports: {}
@@ -108,10 +109,10 @@ iopts: options (see below for details)
       normalizeReplacements = (replacements)=>
         for replacement in replacements
           if typeof replacement is 'string'
-            if replacement is '../*'
-              _automaticReplacement = true
-            else
-              _replacementIds.push(normalizePath(replacement))
+            switch replacement
+              when '../*' then _automaticReplacement = 'module'
+              when '*' then _automaticReplacement = 'ultimate'
+              else _replacementIds.push(normalizePath(replacement))
           else
             if typeof replacement is 'object'
               for k,v of replacement
@@ -123,9 +124,12 @@ iopts: options (see below for details)
 
       seekAndReplaceAllImplsNotFromNodeModules = =>
         for k,v of require.cache
-          myFolder = path.resolve(path.dirname(_path))
-          modulesFolder = path.join(process.cwd(), 'node_modules')
-          if k.search(myFolder) != 0 and k.search(modulesFolder) != 0 and k.search(process.cwd()) >= 0
+          if isNotFromNModules(k)
+            _replacementIds.push(k)
+
+      seekAndReplaceAllImplsNotFromMyFolder = =>
+        for k,v of require.cache
+          if isNotFromMyFolder(k)
             _replacementIds.push(k)
 
       replaceRequire = (consciousness) =>
@@ -146,6 +150,16 @@ A helper function. It recalculates the relative paths, so that if they are provi
 
       isRelative = (path)=>
         path[0] in ['.', path.sep, '..']
+
+      isNotFromMyFolder = (p)->
+        myFolder = path.resolve(path.dirname(_path))
+        modulesFolder = path.join(process.cwd(), 'node_modules')
+        p.search(myFolder) != 0 and p.search(modulesFolder) != 0 and p.search(process.cwd()) >= 0
+
+      isNotFromNModules = (p)->
+        myFolder = path.resolve(path.dirname(_path))
+        modulesFolder = path.join(process.cwd(), 'node_modules')
+        p.search(modulesFolder) != 0 and p.search(process.cwd()) >= 0 and p != path.resolve(_path)
 
 A global module's property. Together with the setter methos (see *accepts* below), it realizes a requirement, that once
 we set a mocker function in the module, it is used all the time.
