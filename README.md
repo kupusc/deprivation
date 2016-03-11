@@ -19,9 +19,7 @@ This module facilitate *whitebox* and *blackbox* testing (binding it with conven
 ## Usage
 
 ```bash
-npm install deprivation
-cd node_modules/deprivation
-npm test
+npm install @nokia/deprivation [--registry=http://esmzv03.emea.nsn-net.net]
 ```
 
 
@@ -155,4 +153,4 @@ The expectation may be set, using the obtained references.
 
 Test doubles are accessed using the path relative to the process current directory. This is the most readable way to specify, which test double object is referenced (the *glob* package may be used by other sub-packages, in different versions, etc.)
 
- > Refer to the test/\*.\* files for more examples.
+ > Fetch the project from the repo and refer to the test/\*.\* files for more examples.
