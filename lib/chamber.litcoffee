@@ -58,8 +58,9 @@ iopts: options (see below for details)
         @exposeInterior()
 
       whitebox: =>
-        consciousness = new ->
-        consciousness.console = console
+        c = ->
+        c.prototype = global
+        consciousness = new c
         situation = vm.createContext(consciousness);
         invalidateCache()
         replaceRequire(consciousness)

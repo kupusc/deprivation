@@ -9,12 +9,11 @@ These are the two main **modes** of operation of the deprivation module:
 - *whitebox unit*
   - grants a full access to an object, without the need to export everything in order to test it.
     useful e.g. in *TDD* (test small increments without exposing every method), and writing fine-grained tests.
-  - can automatically mock other implementations
-  - useless (?) in module tests
-  - probably makes more problems in mature projects
+
 - *blackbox module*
   - gives the *public* access to an object
-  - can automatically mock other implementations
+
+**Both modes enable auto mocking**.
 
  > Behind the curtains it uses the *Node*'s *VM* module, and plows the *require.cache*.
 
@@ -114,7 +113,7 @@ Leads to a different result:
 ```
 #### Blackbox, through an option, with more automation
 
-If a function exists, which accepts an object, and returns it's *test double*,
+If a function exists, which accepts an object, and returns its *test double*,
 
 ```javascript
 // inquisitor
