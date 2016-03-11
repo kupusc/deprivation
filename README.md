@@ -114,18 +114,15 @@ Leads to a different result:
 If a function exists, which accepts an object, and returns it's *test double*,
 
 ```javascript
-// A jasmine spy-maker example
+// inquisitor
 
-    var myReplacer = function (obj) {
-        Object.keys(obj).forEach(function (item) {
-            spyOn(obj, item);
-        });
-    };
+    var inq = require('@nokia/inquisitor');
+
 ```
 it can be passed on with the *replacer* option.
 
 ```javascript
-    seance = chamber("myModule/impl.js", {replace: ['glob', '../*'], replacer: myReplacer});
+    seance = chamber("myModule/impl.js", {replace: ['glob', '../*'], replacer: inq.mockify});
 ```
 
 In the above example
@@ -137,17 +134,22 @@ An example test suite (jasmine/mocha):
 ```javascript
     beforeEach(function () {
         sut = seance.blackbox();
-        spies = seance.getTestDoubles();
+        mocks = seance.getTestDoubles();
     });
 ```
-*spies* above are the spy objects references, stored in a dictionary. This allows to work with objects, that are inaccessible from the module's public interface.
+*mocks* above are the spy objects references, stored in a dictionary. This allows to work with objects, that are inaccessible from the module's public interface.
 
 The expectation may be set, using the obtained references.
 
 ```javascript
     it('uses GlobSync', function () {
+
+        //expectation
+        inq.expect(mocks['node_modules/glob/glob.js'].GlobSync).once.args('bleble');
+
+        //interrogation
         sut.arrangeHeapDumps('bleble');
-        expect(spies['node_modules/glob/glob.js'].GlobSync).toHaveBeenCalled();
+
     });
 ```
 
