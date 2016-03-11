@@ -58,15 +58,19 @@ iopts: options (see below for details)
         @exposeInterior()
 
       whitebox: =>
+        invalidateCache()
+        being = wakeUp()
+        processCache()
+        being
+
+      wakeUp = =>
         c = ->
         c.prototype = global
         consciousness = new c
         situation = vm.createContext(consciousness);
-        invalidateCache()
         replaceRequire(consciousness)
         role = new vm.Script("module = {exports: {}};" + fs.readFileSync(_path))
         assert(role.runInContext(situation))
-        processCache()
         consciousness
 
       getTestDoubles: =>
