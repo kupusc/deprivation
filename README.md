@@ -1,6 +1,6 @@
 # Deprivation
 
-This module facilitates *whitebox* and *blackbox* testing (binding it with conventional UT and MT paradigms) of *nodejs* applications.
+This module facilitate *whitebox* and *blackbox* testing (binding it with conventional UT and MT paradigms) of *nodejs* applications.
 
  > We define a module as a folder with implementations.
 
@@ -19,7 +19,7 @@ This module facilitates *whitebox* and *blackbox* testing (binding it with conve
 ## Usage
 
 ```bash
-npm install @nokia/deprivation [--registry=http://esmzv03.emea.nsn-net.net]
+npm install deprivation
 ```
 
 
@@ -75,7 +75,7 @@ Example dependency of *UUT*.
 
  - the UUT code is 'loaded' (= all the *require* statements are executed in the *UUT*)
  - the dependencies are replaced after exposition of the *UUT*
- - replacement is not transitive!
+ - replacement in not transitive!
 
 ```javascript
 // let's get rid of glob.GlobSync dependency
@@ -94,7 +94,7 @@ Example dependency of *UUT*.
 #### Through an option
 
 Leads to a different result:
- - if the replacement is an object, the require initialization code of the replaced dependencies is not executed
+ - if the replacement is an object, the require initialization code of the replaced dependancies is not executed
  - if the replacement is a string (as in the require statement), the require initialization code **is** executed
  - replacement is transitive (it is replaced globally)
 
@@ -112,15 +112,18 @@ Leads to a different result:
 If a function exists, which accepts an object, and returns it's *test double*,
 
 ```javascript
-// inquisitor
+// A jasmine spy-maker example
 
-    var inq = require('@nokia/inquisitor');
-
+    var myReplacer = function (obj) {
+        Object.keys(obj).forEach(function (item) {
+            spyOn(obj, item);
+        });
+    };
 ```
 it can be passed on with the *replacer* option.
 
 ```javascript
-    seance = chamber("myModule/impl.js", {replace: ['glob', '../*'], replacer: inq.mockify});
+    seance = chamber("myModule/impl.js", {replace: ['glob', '../*'], replacer: myReplacer});
 ```
 
 In the above example
@@ -132,25 +135,20 @@ An example test suite (jasmine/mocha):
 ```javascript
     beforeEach(function () {
         sut = seance.blackbox();
-        mocks = seance.getTestDoubles();
+        spies = seance.getTestDoubles();
     });
 ```
-*mocks* above are the spy objects references, stored in a dictionary. This allows to work with objects, that are inaccessible from the module's public interface.
+*spies* above are the spy objects references, stored in a dictionary. This allows to work with objects, that are inaccessible from the module's public interface.
 
 The expectation may be set, using the obtained references.
 
 ```javascript
     it('uses GlobSync', function () {
-
-        //expectation
-        inq.expect(mocks['node_modules/glob/glob.js'].GlobSync).once.args('bleble');
-
-        //interrogation
         sut.arrangeHeapDumps('bleble');
-
+        expect(spies['node_modules/glob/glob.js'].GlobSync).toHaveBeenCalled();
     });
 ```
 
 Test doubles are accessed using the path relative to the process current directory. This is the most readable way to specify, which test double object is referenced (the *glob* package may be used by other sub-packages, in different versions, etc.)
 
- > Fetch the project from the git repository and refer to the test/\*.\* files for more examples.
+ > Clone the project from the repository and refer to the test/\*.\* files for more examples.
