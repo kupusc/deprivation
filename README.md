@@ -4,14 +4,16 @@ This module facilitate *whitebox* and *blackbox* testing (binding it with conven
 
  > We define a module as a folder with implementations.
 
+These are the two main **modes** of operation of the deprivation module:
+
 - *whitebox unit*
-  - 'grants' a full access to an object, without the need to export everything in order to test it.
+  - grants a full access to an object, without the need to export everything in order to test it.
     useful e.g. in *TDD* (test small increments without exposing every method), and writing fine-grained tests.
   - can automatically mock other implementations
   - useless (?) in module tests
   - probably makes more problems in mature projects
 - *blackbox module*
-  - gives a *normal* access to an object
+  - gives the *public* access to an object
   - can automatically mock other implementations
 
  > Behind the curtains it uses the *Node*'s *VM* module, proxyquire, and plows the *require.cache*.
@@ -33,13 +35,15 @@ Example implementation (*Unit Under Test*).
         return glob.GlobSync(param);
     };
 
-    module.exports.publicFunc = function(param) {
+    var publicFunc = function(param) {
         return myPrivateFunc(param);
     };
 
     var callAnotherGlob = function() {
         return dep('huhu');
     };
+
+    module.exports.publicFunc = publicFunc
 ```
 
 ### Basic
@@ -125,7 +129,7 @@ it can be passed on with the *replacer* option.
 
 In the above example
  - the magical '../\*' string means that all implementations outside of *myModule* folder will be automatically transformed into spies. This omits the *node_module* folder.
- - due to the above, the *glob* package is added explicitly, and will be automatically turned into a spy,
+ - due to the above, the *glob* package is added explicitly, and will be automatically turned into a mock,
 
 An example test suite (jasmine/mocha):
 
