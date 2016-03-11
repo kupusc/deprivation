@@ -33,14 +33,14 @@ Example implementation (*Unit Under Test*).
 
     var myPrivateFunc = function(param){
         return glob.GlobSync(param);
-    }
-
-    var callAnotherGlob = function() {
-        return dep('huhu');
-    }
+    };
 
     module.exports.publicFunc = function(param) {
         return myPrivateFunc(param);
+    };
+
+    var callAnotherGlob = function() {
+        return dep('huhu');
     };
 ```
 
@@ -51,8 +51,9 @@ An example test file.
 ```javascript
     var chamber = require("deprivation").chamber;
     var session = chamber("./implementation.js");
-    var uut = session.whitebox();
+
     // uut - Unit Under Test
+    var uut = session.whitebox();
 
     uut.publicFunc("blabla"); // nothing special. Will call private func, which calls the original glob.GlobSync.
     uut.myPrivateFunc("blabla"); // However... note that this func is not exported, but still accessible in a test!
@@ -128,7 +129,7 @@ it can be passed on with the *replacer* option.
 ```
 
 In the above example
- - the magical '../*' string means that all implementations outside of *myModule* folder will be automatically transformed into spies. This omits the *node_module* folder.
+ - the magical '../\*' string means that all implementations outside of *myModule* folder will be automatically transformed into spies. This omits the *node_module* folder.
  - due to the above, the *glob* package is added explicitly, and will be automatically turned into a spy,
 
 An example test suite (jasmine/mocha):
