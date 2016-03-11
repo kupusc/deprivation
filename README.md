@@ -16,13 +16,14 @@ These are the two main **modes** of operation of the deprivation module:
   - gives the *public* access to an object
   - can automatically mock other implementations
 
- > Behind the curtains it uses the *Node*'s *VM* module, proxyquire, and plows the *require.cache*.
+ > Behind the curtains it uses the *Node*'s *VM* module, and plows the *require.cache*.
 
 ## Usage
 
 ```bash
-npm install @nokia/deprivation [--registry=http://esmzv03.emea.nsn-net.net]
+npm i @nokia/deprivation --registry=http://esmzv03.emea.nsn-net.net
 ```
+For running a complete suite of tests use the *npm test* command.
 
 
 Example implementation (*Unit Under Test*).
@@ -111,7 +112,7 @@ Leads to a different result:
     uut.glob.GlobSync('something');
     uut.callAnotherGlob('something');
 ```
-#### Through an option, with more automation
+#### Blackbox, through an option, with more automation
 
 If a function exists, which accepts an object, and returns it's *test double*,
 

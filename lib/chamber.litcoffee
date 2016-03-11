@@ -3,7 +3,6 @@
     assert = require 'assert'
     path = require 'path'
     cl = console.log.bind(this, 'chamber.litcoffee ---> ')
-    proxyquire = require 'proxyquire'
 
 
 Class **Chamber** is the main part of the deprivation package.
@@ -66,26 +65,17 @@ iopts: options (see below for details)
         replaceRequire(consciousness)
         role = new vm.Script("module = {exports: {}};" + fs.readFileSync(_path))
         assert(role.runInContext(situation))
-        processCacheIncludingMyself()
+        processCache()
         consciousness
 
       getTestDoubles: =>
         _caveImaginedOutsiders
 
       blackbox: =>
-        cavePath = path.dirname(_path)
-        _cave = path.resolve(cavePath)
-        for i in _replacementIds
-          if i.search(_cave) == 0
-            throw Error('modification of ' + i + ' not allowed, it belongs to the tested module! Remove it from the \'replace\' parameter')
-        p = require.resolve(path.relative(_physicalLocationOfChamber, _path))
-        invalidateCache()
-        m = proxyquireReplacementObjs(p)
-        processCache()
-        m
+        @whitebox().module.exports
 
       proxyquireReplacementObjs = (p)=>
-        proxyquire(p, _replacementObjectsWithOriginalPaths)
+        require(p)
 
       invalidateCache = =>
         for k,v of require.cache
@@ -101,33 +91,15 @@ iopts: options (see below for details)
         if _automaticReplacement
           seekAndReplaceAllImplsNotFromNodeModules()
         for i in _replacementIds
-          if not isInYourCave(i)
-            if not require.cache[i]
-              require.cache[i] = exports: {}
-            normRelativePath = path.relative(process.cwd(), normalizePath(i))
-            _betterIllusionFactory(require.cache[i].exports)
-            _caveImaginedOutsiders[normRelativePath] = require.cache[i].exports
+          if not require.cache[i]
+            require.cache[i] = exports: {}
+          normRelativePath = path.relative(process.cwd(), normalizePath(i))
+          _betterIllusionFactory(require.cache[i].exports)
+          _caveImaginedOutsiders[normRelativePath] = require.cache[i].exports
         for k,v of _replacementObjects
-          if not isInYourCave(k)
             normRelativePath = path.relative(process.cwd(), normalizePath(k))
             require.cache[k].exports = _replacementObjects[k]
             _caveImaginedOutsiders[normRelativePath] = require.cache[k].exports
-
-      processCacheIncludingMyself = =>
-        if _automaticReplacement
-          seekAndReplaceAllImplsNotFromNodeModules()
-        for i in _replacementIds
-          if not require.cache[i]
-            require.cache[i] = exports: {}
-          it = require.cache[i].exports
-          normRelativePath = path.relative(process.cwd(), normalizePath(i))
-          _betterIllusionFactory(it)
-          _caveImaginedOutsiders[normRelativePath] = it
-        for k,v of _replacementObjects
-          it = require.cache[k].exports
-          normRelativePath = path.relative(process.cwd(), normalizePath(k))
-          it = _replacementObjects[k]
-          _caveImaginedOutsiders[normRelativePath] = it
 
       isInYourCave = (p)=>
         return p.search(_cave) == 0
