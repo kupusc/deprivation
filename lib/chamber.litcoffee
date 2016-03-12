@@ -53,15 +53,21 @@ iopts: options (see below for details)
         if(_replacementIds.length or _automaticReplacement) and not _betterIllusionFactory
           throw new Error('if you specify full modules in the \'replace\' option, please specify the \'replacer\' as well')
 
-      exposeInterior: =>
-        cl 'Deprecated! Use the \'whitebox\' method instead!'
-        @whitebox()
+      blackbox: =>
+        @whitebox().module.exports
 
       whitebox: =>
         invalidateCache()
         being = wakeUp()
         processCache()
         being
+
+      exposeInterior: =>
+        cl 'Deprecated! Use the \'whitebox\' method instead!'
+        @whitebox()
+
+      getTestDoubles: =>
+        _caveImaginedOutsiders
 
       wakeUp = =>
         c = ->
@@ -72,12 +78,6 @@ iopts: options (see below for details)
         role = new vm.Script("module = {exports: {}};" + fs.readFileSync(_path))
         assert(role.runInContext(situation))
         consciousness
-
-      getTestDoubles: =>
-        _caveImaginedOutsiders
-
-      blackbox: =>
-        @whitebox().module.exports
 
       proxyquireReplacementObjs = (p)=>
         require(p)
@@ -110,21 +110,22 @@ iopts: options (see below for details)
           require.cache[k].exports = _replacementObjects[k]
           _caveImaginedOutsiders[normRelativePath] = require.cache[k].exports
 
-      isInYourCave = (p)=>
-        return p.search(_cave) == 0
-
       normalizeReplacements = (replacements)=>
         for replacement in replacements
-          if typeof replacement is 'string'
-            switch replacement
-              when '../*' then _automaticReplacement = 'module'
-              when '*' then _automaticReplacement = 'ultimate'
-              else _replacementIds.push(normalizePath(replacement))
-          else
-            if typeof replacement is 'object'
-              for k,v of replacement
-                _replacementObjects[normalizePath(k)] = v
-                _replacementObjectsWithOriginalPaths[k] = v
+          switch typeof replacement
+            when 'string' then normalizeReplacementsString(replacement)
+            when 'object' then normalizeReplacementsObject(replacement)
+
+      normalizeReplacementsString = (replacement)=>
+        switch replacement
+          when '../*' then _automaticReplacement = 'module'
+          when '*' then _automaticReplacement = 'ultimate'
+          else _replacementIds.push(normalizePath(replacement))
+
+      normalizeReplacementsObject = (replacement)=>
+        for k,v of replacement
+          _replacementObjects[normalizePath(k)] = v
+          _replacementObjectsWithOriginalPaths[k] = v
 
       normalizePath = (p) =>
         require.resolve(compensatePhysicalDistance(p))
@@ -160,8 +161,7 @@ A helper function. It recalculates the relative paths, so that if they are provi
 
       isNotFromMyFolder = (p)->
         myFolder = path.resolve(path.dirname(_path))
-        modulesFolder = path.join(process.cwd(), 'node_modules')
-        p.search(myFolder) != 0 and p.search(modulesFolder) != 0 and p.search(process.cwd()) >= 0
+        p.search(myFolder) != 0 and isNotFromNModules(p)
 
       isNotFromNModules = (p)->
         myFolder = path.resolve(path.dirname(_path))
