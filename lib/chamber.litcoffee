@@ -86,26 +86,29 @@ iopts: options (see below for details)
         for k,v of require.cache
           delete require.cache[k]
 
-      invalidateRequireCache: =>
-        for k,v of _replacementObjects
-          delete require.cache[k]
-        for i in _replacementIds
-          delete require.cache[i]
-
       processCache = =>
+        processCacheWithAutomocking()
+        processCacheWithIds()
+        processCacheWithObjs()
+
+      processCacheWithAutomocking = =>
         switch _automaticReplacement
           when 'module' then seekAndReplaceAllImplsNotFromMyFolder()
           when 'ultimate' then seekAndReplaceAllImplsNotFromNodeModules()
+
+      processCacheWithIds = =>
         for i in _replacementIds
           if not require.cache[i]
             require.cache[i] = exports: {}
           normRelativePath = path.relative(process.cwd(), normalizePath(i))
           _betterIllusionFactory(require.cache[i].exports)
           _caveImaginedOutsiders[normRelativePath] = require.cache[i].exports
+
+      processCacheWithObjs = =>
         for k,v of _replacementObjects
-            normRelativePath = path.relative(process.cwd(), normalizePath(k))
-            require.cache[k].exports = _replacementObjects[k]
-            _caveImaginedOutsiders[normRelativePath] = require.cache[k].exports
+          normRelativePath = path.relative(process.cwd(), normalizePath(k))
+          require.cache[k].exports = _replacementObjects[k]
+          _caveImaginedOutsiders[normRelativePath] = require.cache[k].exports
 
       isInYourCave = (p)=>
         return p.search(_cave) == 0
