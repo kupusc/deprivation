@@ -18,6 +18,8 @@ Class **Chamber** is the main part of the deprivation package.
       _replacementObjects = {}
       _replacementObjectsWithOriginalPaths = {}
       _automaticReplacement = false
+      _theZeroConditionPath = undefined
+      _theZeroConditionContext = undefined
 
 This must produce a Test Double out of an object, so that it can be controlled
 in tests
@@ -39,6 +41,8 @@ iopts: options (see below for details)
         _replacementObjects = {}
         _replacementObjectsWithOriginalPaths = {}
         _automaticReplacement = false
+        _theZeroConditionPath = undefined
+        _theZeroConditionContext = undefined
 
         _physicalLocationOfChamber = path.dirname(/[^\(]*\(([^:]*)/.exec(new Error().stack.split('\n')[1])[1])
         _path = ipath
@@ -58,9 +62,11 @@ iopts: options (see below for details)
 
       whitebox: =>
         invalidateCache()
-        being = wakeUp()
+        _theZeroConditionPath = _path
+        _theZeroConditionContext = wakeUp()
+        _path = _theZeroConditionPath
         processCache()
-        being
+        _theZeroConditionContext
 
       exposeInterior: =>
         cl 'Deprecated! Use the \'whitebox\' method instead!'
@@ -72,12 +78,12 @@ iopts: options (see below for details)
       wakeUp = =>
         c = ->
         c.prototype = global
-        consciousness = new c
-        situation = vm.createContext(consciousness);
-        replaceRequire(consciousness)
+        context = new c
+        situation = vm.createContext(context);
+        replaceRequire(context)
         role = new vm.Script("module = {exports: {}};" + fs.readFileSync(_path))
         assert(role.runInContext(situation))
-        consciousness
+        context
 
       proxyquireReplacementObjs = (p)=>
         require(p)
@@ -140,13 +146,26 @@ iopts: options (see below for details)
           if isNotFromMyFolder(k)
             _replacementIds.push(k)
 
-      replaceRequire = (consciousness) =>
-        consciousness.require = (p)=>
+      replaceRequire = (context) =>
+        context.require = (p)=>
           normalizedP = normalizePath(p)
+          #cl normalizedP
           if _replacementObjects and _replacementObjects[normalizedP]
             _replacementObjects[normalizedP]
           else
-            require(compensatePhysicalDistance(p))
+            #if normalizedP not in (_replacementIds)
+              newPath = require.resolve(compensatePhysicalDistance(p))
+              if newPath is normalizedP # if after resolve it is still the same, it means it is node native module, not from the node_modules
+                #cl newPath, normalizedP
+                require(compensatePhysicalDistance(p))
+              else
+                if newPath is _theZeroConditionPath
+                  return _theZeroConditionContext
+                _path = newPath
+                #cl _path
+                wakeUp().module.exports
+            #else
+              #require(compensatePhysicalDistance(p))
 
 A helper function. It recalculates the relative paths, so that if they are provided here to the require it still works.
 

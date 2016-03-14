@@ -53,6 +53,14 @@ describe "deprivation chamber for UT", ->
     expect(glob.GlobSync('*')).to.be.not.equal('/.ssh/id_rsa.priv')
     expect(me.arrangeHeapDumps('dupakupa')).to.be.equal('/.ssh/id_rsa.priv')
 
+  it 'allows complete stubbing', ->
+    seance = chamber("test/exampleUUT.js", replace:["./dep"], replacer: inquisitor.mockify)
+    whitebox = seance.whitebox()
+    blackbox = seance.blackbox()
+    expect(whitebox.module.exports).to.be.not.equal(blackbox)
+    expect(whitebox.module.exports.depInitialized).to.be.equal(undefined)
+    expect(blackbox.depInitialized).to.be.equal(undefined)
+
 describe 'chamber for MT', ->
 
   stimulation = (uut)->
