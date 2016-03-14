@@ -16,30 +16,30 @@ ipath: location of the *Unit Under Test* (mandatory)
 
       constructor: (@_path, @_opts) ->
 
-        @_caveImaginedOutsiders = {}
-        @_replacementIds = []
-        @_replacementObjects = {}
-        @_replacementObjectsWithOriginalPaths = {}
+        @_testDoubles = {}
+        @_doubleIds = []
+        @_doubleObjs = {}
+        @_doubleObjsWithOrigPaths = {}
 
-        @_physicalLocationOfChamber = path.dirname(/[^\(]*\(([^:]*)/.exec(new Error().stack.split('\n')[1])[1])
+        @_getThisFileDir = path.dirname(/[^\(]*\(([^:]*)/.exec(new Error().stack.split('\n')[1])[1])
 
         if @_opts?.replace
-          @normalizeReplacements(@_opts.replace)
+          @_normalizeReplacements(@_opts.replace)
 
         @_betterIllusionFactory = @_opts?.replacer
 
-        if(@_replacementIds.length or @_automaticReplacement) and not @_betterIllusionFactory
+        if(@_doubleIds.length or @_automaticReplacement) and not @_betterIllusionFactory
           throw new Error('if you specify full modules in the \'replace\' option, please specify the \'replacer\' as well')
 
       blackbox: =>
         @whitebox().module.exports
 
       whitebox: =>
-        @invalidateCache()
+        @_invalidateCache()
         @_theZeroConditionPath = @_path
-        @_theZeroConditionContext = @wakeUp()
+        @_theZeroConditionContext = @_wakeUp()
         @_path = @_theZeroConditionPath
-        @processCache()
+        @_processCache()
         @_theZeroConditionContext
 
       exposeInterior: =>
@@ -47,113 +47,113 @@ ipath: location of the *Unit Under Test* (mandatory)
         @whitebox()
 
       getTestDoubles: =>
-        @_caveImaginedOutsiders
+        @_testDoubles
 
-      wakeUp: =>
+      _wakeUp: =>
         c = ->
         c.prototype = global
         context = new c
         situation = vm.createContext(context);
-        @replaceRequire(context)
+        @_replaceRequire(context)
         role = new vm.Script("module = {exports: {}};" + fs.readFileSync(@_path))
         assert(role.runInContext(situation))
         context
 
-      invalidateCache: =>
+      _invalidateCache: =>
         for k,v of require.cache
           delete require.cache[k]
 
-      processCache: =>
-        @processCacheWithAutomocking()
-        @processCacheWithIds()
-        @processCacheWithObjs()
+      _processCache: =>
+        @_processCacheWithAutomocking()
+        @_processCacheWithIds()
+        @_processCacheWithObjs()
 
-      processCacheWithAutomocking: =>
+      _processCacheWithAutomocking: =>
         switch @_automaticReplacement
-          when 'module' then @seekAndReplaceAllImplsNotFromMyFolder()
-          when 'ultimate' then @seekAndReplaceAllImplsNotFromNodeModules()
+          when 'module' then @_seekAndReplaceAllImplsNotFromMyFolder()
+          when 'ultimate' then @_seekAndReplaceAllImplsNotFromNodeModules()
 
-      processCacheWithIds: =>
-        for i in @_replacementIds
+      _processCacheWithIds: =>
+        for i in @_doubleIds
           if not require.cache[i]
             require.cache[i] = exports: {}
-          normRelativePath = path.relative(process.cwd(), @normalizePath(i))
+          normRelativePath = path.relative(process.cwd(), @_normalizePath(i))
           @_betterIllusionFactory(require.cache[i].exports)
-          @_caveImaginedOutsiders[normRelativePath] = require.cache[i].exports
+          @_testDoubles[normRelativePath] = require.cache[i].exports
 
-      processCacheWithObjs: =>
-        for k,v of @_replacementObjects
-          normRelativePath = path.relative(process.cwd(), @normalizePath(k))
-          require.cache[k].exports = @_replacementObjects[k]
-          @_caveImaginedOutsiders[normRelativePath] = require.cache[k].exports
+      _processCacheWithObjs: =>
+        for k,v of @_doubleObjs
+          normRelativePath = path.relative(process.cwd(), @_normalizePath(k))
+          require.cache[k].exports = @_doubleObjs[k]
+          @_testDoubles[normRelativePath] = require.cache[k].exports
 
-      normalizeReplacements: (replacements)=>
+      _normalizeReplacements: (replacements)=>
         for replacement in replacements
           switch typeof replacement
-            when 'string' then @normalizeReplacementsString(replacement)
-            when 'object' then @normalizeReplacementsObject(replacement)
+            when 'string' then @_normalizeReplacementsString(replacement)
+            when 'object' then @_normalizeReplacementsObject(replacement)
 
-      normalizeReplacementsString: (replacement)=>
+      _normalizeReplacementsString: (replacement)=>
         switch replacement
           when '../*' then @_automaticReplacement = 'module'
           when '*' then @_automaticReplacement = 'ultimate'
-          else @_replacementIds.push(@normalizePath(replacement))
+          else @_doubleIds.push(@_normalizePath(replacement))
 
-      normalizeReplacementsObject: (replacement)=>
+      _normalizeReplacementsObject: (replacement)=>
         for k,v of replacement
-          @_replacementObjects[@normalizePath(k)] = v
-          @_replacementObjectsWithOriginalPaths[k] = v
+          @_doubleObjs[@_normalizePath(k)] = v
+          @_doubleObjsWithOrigPaths[k] = v
 
-      normalizePath: (p) =>
-        require.resolve(@compensatePhysicalDistance(p))
+      _normalizePath: (p) =>
+        require.resolve(@_fixRelativePath(p))
 
-      seekAndReplaceAllImplsNotFromNodeModules: =>
+      _seekAndReplaceAllImplsNotFromNodeModules: =>
         for k,v of require.cache
-          if @isNotFromNModules(k)
-            @_replacementIds.push(k)
+          if @_isNotFromNModules(k)
+            @_doubleIds.push(k)
 
-      seekAndReplaceAllImplsNotFromMyFolder: =>
+      _seekAndReplaceAllImplsNotFromMyFolder: =>
         for k,v of require.cache
-          if @isNotFromMyFolder(k)
-            @_replacementIds.push(k)
+          if @_isNotFromMyFolder(k)
+            @_doubleIds.push(k)
 
-      replaceRequire: (context) =>
+      _replaceRequire: (context) =>
         context.require = (p)=>
-          normalizedP = @normalizePath(p)
+          normalizedP = @_normalizePath(p)
           #cl normalizedP
-          if @_replacementObjects and @_replacementObjects[normalizedP]
-            @_replacementObjects[normalizedP]
+          if @_doubleObjs and @_doubleObjs[normalizedP]
+            @_doubleObjs[normalizedP]
           else
-            #if normalizedP not in (_replacementIds)
-              newPath = require.resolve(@compensatePhysicalDistance(p))
+            #if normalizedP not in (_doubleIds)
+              newPath = require.resolve(@_fixRelativePath(p))
               if newPath is normalizedP # if after resolve it is still the same, it means it is node native module, not from the node_modules
                 #cl newPath, normalizedP
-                require(@compensatePhysicalDistance(p))
+                require(@_fixRelativePath(p))
               else
                 if newPath is @_theZeroConditionPath
                   return @_theZeroConditionContext
                 @_path = newPath
                 #cl _path
-                @wakeUp().module.exports
+                @_wakeUp().module.exports
             #else
-              #require(compensatePhysicalDistance(p))
+              #require(_fixRelativePath(p))
 
 A helper function. It recalculates the relative paths, so that if they are provided here to the require it still works.
 
-      compensatePhysicalDistance: (rel) =>
-        if @isRelative(rel)
-          require.resolve(path.relative(@_physicalLocationOfChamber, path.join(process.cwd(), path.dirname(@_path), rel)))
+      _fixRelativePath: (rel) =>
+        if @_isRelative(rel)
+          require.resolve(path.relative(@_getThisFileDir, path.join(process.cwd(), path.dirname(@_path), rel)))
         else
           rel
 
-      isRelative: (path)=>
+      _isRelative: (path)=>
         path[0] in ['.', path.sep]
 
-      isNotFromMyFolder: (p)->
+      _isNotFromMyFolder: (p)->
         myFolder = path.resolve(path.dirname(@_path))
-        p.search(myFolder) != 0 and @isNotFromNModules(p)
+        p.search(myFolder) != 0 and @_isNotFromNModules(p)
 
-      isNotFromNModules: (p)->
+      _isNotFromNModules: (p)->
         myFolder = path.resolve(path.dirname(@_path))
         modulesFolder = path.join(process.cwd(), 'node_modules')
         p.search(modulesFolder) != 0 and p.search(process.cwd()) >= 0 and p != path.resolve(@_path)
