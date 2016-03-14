@@ -140,20 +140,8 @@ A helper function. It recalculates the relative paths, so that if they are provi
         modulesFolder = path.join(process.cwd(), 'node_modules')
         p.search(modulesFolder) != 0 and p.search(process.cwd()) >= 0 and p != path.resolve(@_path)
 
-A global module's property. Together with the setter methos (see *accepts* below), it realizes a requirement, that once
-we set a mocker function in the module, it is used all the time.
-Couldn't work out quickly a cleaner solution, but I'm sure it must exist...
-
-    betterStimulation = (real) =>
-      return real
-
-Module exports. Note the way the stimulation property is used above in the class.
-Patches are welcome.
-
     module.exports = {
       chamber: (params...) =>
         new Chamber(params...)
-      desires: (somethingBetter) ->
-        betterStimulation = somethingBetter
     }
 
