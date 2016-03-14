@@ -71,8 +71,8 @@ ipath: location of the *Unit Under Test* (mandatory)
 
       _processCacheWithIds: =>
         for i in @_doubleIds
-          if not require.cache[i]
-            require.cache[i] = exports: {}
+          if require.cache[i] is undefined
+            throw new Error('Remove the module \'' + i + '\' from the \'replace\' option, it is not required anywhere!')
           normRelativePath = path.relative(process.cwd(), @_normalizePath(i))
           if not @_testDoubles[normRelativePath]
             @_betterIllusionFactory(require.cache[i].exports)
@@ -80,6 +80,8 @@ ipath: location of the *Unit Under Test* (mandatory)
 
       _processCacheWithObjs: =>
         for k,v of @_doubleObjs
+          if require.cache[k] is undefined
+            throw new Error('Remove the module \'' + k + '\' from the \'replace\' option, it is not required anywhere!')
           normRelativePath = path.relative(process.cwd(), @_normalizePath(k))
           if not @_testDoubles[normRelativePath]
             require.cache[k].exports = @_doubleObjs[k]
