@@ -74,14 +74,16 @@ ipath: location of the *Unit Under Test* (mandatory)
           if not require.cache[i]
             require.cache[i] = exports: {}
           normRelativePath = path.relative(process.cwd(), @_normalizePath(i))
-          @_betterIllusionFactory(require.cache[i].exports)
-          @_testDoubles[normRelativePath] = require.cache[i].exports
+          if not @_testDoubles[normRelativePath]
+            @_betterIllusionFactory(require.cache[i].exports)
+            @_testDoubles[normRelativePath] = require.cache[i].exports
 
       _processCacheWithObjs: =>
         for k,v of @_doubleObjs
           normRelativePath = path.relative(process.cwd(), @_normalizePath(k))
-          require.cache[k].exports = @_doubleObjs[k]
-          @_testDoubles[normRelativePath] = require.cache[k].exports
+          if not @_testDoubles[normRelativePath]
+            require.cache[k].exports = @_doubleObjs[k]
+            @_testDoubles[normRelativePath] = require.cache[k].exports
 
       _normalizeReplacements: (replacements)=>
         for replacement in replacements
