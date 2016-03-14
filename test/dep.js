@@ -19,3 +19,4 @@ module.exports.NoRefFunc = function() {
     return globen.GlobSync('dep.js');
 }
 module.exports.thirdStageDep = thirdStageDep;
+module.exports.initializationCodeExecuted = true

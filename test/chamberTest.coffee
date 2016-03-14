@@ -12,6 +12,14 @@ describe "deprivation chamber for UT", ->
     me.arrangeHeapDumps("kupadupa")
     me.module.exports.NoRefFunc()
 
+  xit 'allows complete stubbing', ->
+    seance = chamber("test/exampleUUT.js", replace:["./dep"], replacer: inquisitor.mockify)
+    whitebox = seance.whitebox()
+    blackbox = seance.blackbox()
+    expect(whitebox.module.exports).to.be.not.equal(blackbox)
+    expect(whitebox.module.exports.depInitialized).to.be.equal(undefined)
+    expect(blackbox.depInitialized).to.be.equal(undefined)
+
 describe 'chamber for MT', ->
 
   it 'stubs (mocks shouldn\'t be called)', ->
