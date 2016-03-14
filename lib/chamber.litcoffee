@@ -18,7 +18,6 @@ ipath: location of the *Unit Under Test* (mandatory)
         @_testDoubles = {}
         @_doubleIds = []
         @_doubleObjs = {}
-        @_doubleObjsWithOrigPaths = {}
 
         @_getThisFileDir = path.dirname(/[^\(]*\(([^:]*)/.exec(new Error().stack.split('\n')[1])[1])
 
@@ -35,11 +34,9 @@ ipath: location of the *Unit Under Test* (mandatory)
 
       whitebox: =>
         @_invalidateCache()
-        @_theZeroConditionPath = @_path
-        @_theZeroConditionContext = @_wakeUp()
-        @_path = @_theZeroConditionPath
+        context = @_wakeUp()
         @_processCache()
-        @_theZeroConditionContext
+        context
 
       exposeInterior: =>
         cl 'Deprecated! Use the \'whitebox\' method instead!'
@@ -101,7 +98,6 @@ ipath: location of the *Unit Under Test* (mandatory)
       _normalizeReplacementsObject: (replacement)=>
         for k,v of replacement
           @_doubleObjs[@_normalizePath(k)] = v
-          @_doubleObjsWithOrigPaths[k] = v
 
       _normalizePath: (p) =>
         require.resolve(@_fixRelativePath(p))
@@ -119,7 +115,6 @@ ipath: location of the *Unit Under Test* (mandatory)
       _replaceRequire: (context) =>
         context.require = (p)=>
           normalizedP = @_normalizePath(p)
-          #cl normalizedP
           if @_doubleObjs and @_doubleObjs[normalizedP]
             @_doubleObjs[normalizedP]
           else
