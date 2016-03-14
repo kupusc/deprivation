@@ -2,7 +2,6 @@
     fs = require 'fs'
     assert = require 'assert'
     path = require 'path'
-    nativeModule = require('module')
     cl = console.log.bind(this, 'chamber.litcoffee ---> ')
 
 
@@ -124,19 +123,7 @@ ipath: location of the *Unit Under Test* (mandatory)
           if @_doubleObjs and @_doubleObjs[normalizedP]
             @_doubleObjs[normalizedP]
           else
-            #if normalizedP not in (_doubleIds)
-              newPath = require.resolve(@_fixRelativePath(p))
-              if newPath is normalizedP # if after resolve it is still the same, it means it is node native module, not from the node_modules
-                #cl newPath, normalizedP
-                require(@_fixRelativePath(p))
-              else
-                if newPath is @_theZeroConditionPath
-                  return @_theZeroConditionContext
-                @_path = newPath
-                #cl _path
-                @_wakeUp().module.exports
-            #else
-              #require(_fixRelativePath(p))
+            require(@_fixRelativePath(p))
 
 A helper function. It recalculates the relative paths, so that if they are provided here to the require it still works.
 
