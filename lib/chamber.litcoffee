@@ -142,7 +142,7 @@ A helper function. It recalculates the relative paths, so that if they are provi
       _isNotFromNModules: (p)->
         myFolder = path.resolve(path.dirname(@_path))
         modulesFolder = path.join(process.cwd(), 'node_modules')
-        p.search(modulesFolder) != 0 and p.search(process.cwd()) >= 0 and p != path.resolve(@_path)
+        p.search(modulesFolder) != 0 and p.search(process.cwd()) >= 0
 
     module.exports = {
       chamber: (params...) =>
