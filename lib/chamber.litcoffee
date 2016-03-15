@@ -3,15 +3,9 @@
     assert = require 'assert'
     path = require 'path'
     cl = console.log.bind(this, 'chamber.litcoffee ---> ')
-
-
-Class **Chamber** is the main part of the deprivation package.
+    RC = require.cache
 
     class Chamber
-
-Instance must be initialized with:
-ipath: location of the *Unit Under Test* (mandatory)
-@_opts: options (see below for details)
 
       constructor: (@_path, @_opts) ->
 
@@ -56,36 +50,37 @@ ipath: location of the *Unit Under Test* (mandatory)
         context
 
       _invalidateCache: =>
-        for k,v of require.cache
-          delete require.cache[k]
+        for k,v of RC
+          delete RC[k]
+        @_testDoubles = {}
 
       _processCache: =>
-        @_processCacheWithAutomocking()
+        @_automockExtractIds()
         @_processCacheWithIds()
         @_processCacheWithObjs()
 
-      _processCacheWithAutomocking: =>
+      _automockExtractIds: =>
         switch @_automaticReplacement
-          when 'module' then @_seekAndReplaceAllImplsNotFromMyFolder()
-          when 'ultimate' then @_seekAndReplaceAllImplsNotFromNodeModules()
+          when 'module' then @_seekNotFromMyFolder()
+          when 'ultimate' then @_seekNotFromNodeModules()
 
       _processCacheWithIds: =>
         for i in @_doubleIds
-          if require.cache[i] is undefined
+          if RC[i] is undefined
             throw new Error('Remove the module \'' + i + '\' from the \'replace\' option, it is not required anywhere!')
           normRelativePath = path.relative(process.cwd(), @_normalizePath(i))
           if not @_testDoubles[normRelativePath]
-            @_betterIllusionFactory(require.cache[i].exports)
-            @_testDoubles[normRelativePath] = require.cache[i].exports
+            @_betterIllusionFactory(RC[i].exports)
+            @_testDoubles[normRelativePath] = RC[i].exports
 
       _processCacheWithObjs: =>
         for k,v of @_doubleObjs
-          if require.cache[k] is undefined
+          if RC[k] is undefined
             throw new Error('Remove the module \'' + k + '\' from the \'replace\' option, it is not required anywhere!')
           normRelativePath = path.relative(process.cwd(), @_normalizePath(k))
           if not @_testDoubles[normRelativePath]
-            require.cache[k].exports = @_doubleObjs[k]
-            @_testDoubles[normRelativePath] = require.cache[k].exports
+            RC[k].exports = @_doubleObjs[k]
+            @_testDoubles[normRelativePath] = RC[k].exports
 
       _normalizeReplacements: (replacements)=>
         for replacement in replacements
@@ -106,14 +101,14 @@ ipath: location of the *Unit Under Test* (mandatory)
       _normalizePath: (p) =>
         require.resolve(@_fixRelativePath(p))
 
-      _seekAndReplaceAllImplsNotFromNodeModules: =>
-        for k,v of require.cache
+      _seekNotFromNodeModules: =>
+        for k,v of RC
           if @_isNotFromNModules(k)
             @_doubleIds.push(k)
 
-      _seekAndReplaceAllImplsNotFromMyFolder: =>
-        for k,v of require.cache
-          if @_isNotFromMyFolder(k)
+      _seekNotFromMyFolder: =>
+        for k,v of RC
+          if @_isNotFromMyFolder(k) and @_isNotFromNModules(k)
             @_doubleIds.push(k)
 
       _replaceRequire: (context) =>
@@ -123,8 +118,6 @@ ipath: location of the *Unit Under Test* (mandatory)
             @_doubleObjs[normalizedP]
           else
             require(@_fixRelativePath(p))
-
-A helper function. It recalculates the relative paths, so that if they are provided here to the require it still works.
 
       _fixRelativePath: (rel) =>
         if @_isRelative(rel)
@@ -137,7 +130,7 @@ A helper function. It recalculates the relative paths, so that if they are provi
 
       _isNotFromMyFolder: (p)->
         myFolder = path.resolve(path.dirname(@_path))
-        p.search(myFolder) != 0 and @_isNotFromNModules(p)
+        p.search(myFolder) != 0
 
       _isNotFromNModules: (p)->
         myFolder = path.resolve(path.dirname(@_path))
