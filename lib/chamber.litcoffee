@@ -113,7 +113,7 @@ ipath: location of the *Unit Under Test* (mandatory)
 
       _seekNotFromMyFolder: =>
         for k,v of require.cache
-          if @_isNotFromMyFolder(k)
+          if @_isNotFromMyFolder(k) and @_isNotFromNModules(k)
             @_doubleIds.push(k)
 
       _replaceRequire: (context) =>
@@ -137,7 +137,7 @@ A helper function. It recalculates the relative paths, so that if they are provi
 
       _isNotFromMyFolder: (p)->
         myFolder = path.resolve(path.dirname(@_path))
-        p.search(myFolder) != 0 and @_isNotFromNModules(p)
+        p.search(myFolder) != 0
 
       _isNotFromNModules: (p)->
         myFolder = path.resolve(path.dirname(@_path))
