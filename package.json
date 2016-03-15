@@ -1,6 +1,6 @@
 {
   "name": "@nokia/deprivation",
-  "version": "3.2.1",
+  "version": "3.3.0",
   "description": "testing facilitation, by converting Unit Under Test to a sandboxed version, that exposes module internals without the need to export them.",
   "main": "main.js",
   "directories": {
