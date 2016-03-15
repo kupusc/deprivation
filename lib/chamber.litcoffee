@@ -4,14 +4,7 @@
     path = require 'path'
     cl = console.log.bind(this, 'chamber.litcoffee ---> ')
 
-
-Class **Chamber** is the main part of the deprivation package.
-
     class Chamber
-
-Instance must be initialized with:
-ipath: location of the *Unit Under Test* (mandatory)
-@_opts: options (see below for details)
 
       constructor: (@_path, @_opts) ->
 
@@ -123,8 +116,6 @@ ipath: location of the *Unit Under Test* (mandatory)
             @_doubleObjs[normalizedP]
           else
             require(@_fixRelativePath(p))
-
-A helper function. It recalculates the relative paths, so that if they are provided here to the require it still works.
 
       _fixRelativePath: (rel) =>
         if @_isRelative(rel)
