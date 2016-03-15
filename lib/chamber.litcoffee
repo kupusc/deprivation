@@ -60,14 +60,14 @@ ipath: location of the *Unit Under Test* (mandatory)
           delete require.cache[k]
 
       _processCache: =>
-        @_processCacheWithAutomocking()
+        @_automockExtractIds()
         @_processCacheWithIds()
         @_processCacheWithObjs()
 
-      _processCacheWithAutomocking: =>
+      _automockExtractIds: =>
         switch @_automaticReplacement
-          when 'module' then @_seekAndReplaceAllImplsNotFromMyFolder()
-          when 'ultimate' then @_seekAndReplaceAllImplsNotFromNodeModules()
+          when 'module' then @_seekNotFromMyFolder()
+          when 'ultimate' then @_seekNotFromNodeModules()
 
       _processCacheWithIds: =>
         for i in @_doubleIds
@@ -106,12 +106,12 @@ ipath: location of the *Unit Under Test* (mandatory)
       _normalizePath: (p) =>
         require.resolve(@_fixRelativePath(p))
 
-      _seekAndReplaceAllImplsNotFromNodeModules: =>
+      _seekNotFromNodeModules: =>
         for k,v of require.cache
           if @_isNotFromNModules(k)
             @_doubleIds.push(k)
 
-      _seekAndReplaceAllImplsNotFromMyFolder: =>
+      _seekNotFromMyFolder: =>
         for k,v of require.cache
           if @_isNotFromMyFolder(k)
             @_doubleIds.push(k)
