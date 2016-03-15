@@ -63,7 +63,7 @@
       _dealWithPromises: =>
         for key,val of @_testDoubles
           for k,v of val
-            if typeof v is 'function'
+            if typeof v is 'function' and not (k.match('Async$'))
               val[k + 'Async'] = v
 
 
