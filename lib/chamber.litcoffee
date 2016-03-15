@@ -3,6 +3,7 @@
     assert = require 'assert'
     path = require 'path'
     cl = console.log.bind(this, 'chamber.litcoffee ---> ')
+    RC = require.cache
 
     class Chamber
 
@@ -49,8 +50,9 @@
         context
 
       _invalidateCache: =>
-        for k,v of require.cache
-          delete require.cache[k]
+        for k,v of RC
+          delete RC[k]
+        @_testDoubles = {}
 
       _processCache: =>
         @_automockExtractIds()
@@ -64,21 +66,21 @@
 
       _processCacheWithIds: =>
         for i in @_doubleIds
-          if require.cache[i] is undefined
+          if RC[i] is undefined
             throw new Error('Remove the module \'' + i + '\' from the \'replace\' option, it is not required anywhere!')
           normRelativePath = path.relative(process.cwd(), @_normalizePath(i))
           if not @_testDoubles[normRelativePath]
-            @_betterIllusionFactory(require.cache[i].exports)
-            @_testDoubles[normRelativePath] = require.cache[i].exports
+            @_betterIllusionFactory(RC[i].exports)
+            @_testDoubles[normRelativePath] = RC[i].exports
 
       _processCacheWithObjs: =>
         for k,v of @_doubleObjs
-          if require.cache[k] is undefined
+          if RC[k] is undefined
             throw new Error('Remove the module \'' + k + '\' from the \'replace\' option, it is not required anywhere!')
           normRelativePath = path.relative(process.cwd(), @_normalizePath(k))
           if not @_testDoubles[normRelativePath]
-            require.cache[k].exports = @_doubleObjs[k]
-            @_testDoubles[normRelativePath] = require.cache[k].exports
+            RC[k].exports = @_doubleObjs[k]
+            @_testDoubles[normRelativePath] = RC[k].exports
 
       _normalizeReplacements: (replacements)=>
         for replacement in replacements
@@ -100,12 +102,12 @@
         require.resolve(@_fixRelativePath(p))
 
       _seekNotFromNodeModules: =>
-        for k,v of require.cache
+        for k,v of RC
           if @_isNotFromNModules(k)
             @_doubleIds.push(k)
 
       _seekNotFromMyFolder: =>
-        for k,v of require.cache
+        for k,v of RC
           if @_isNotFromMyFolder(k) and @_isNotFromNModules(k)
             @_doubleIds.push(k)
 
