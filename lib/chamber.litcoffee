@@ -58,6 +58,14 @@
         @_automockExtractIds()
         @_processCacheWithIds()
         @_processCacheWithObjs()
+        @_dealWithPromises()
+
+      _dealWithPromises: =>
+        for key,val of @_testDoubles
+          for k,v of val
+            if typeof v is 'function'
+              val[k + 'Async'] = v
+
 
       _automockExtractIds: =>
         switch @_automaticReplacement
