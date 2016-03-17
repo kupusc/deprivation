@@ -28,8 +28,11 @@
 
       whitebox: =>
         @_invalidateCache()
+        @_processCacheWithObjs()
         context = @_wakeUp()
-        @_processCache()
+        @_automockExtractIds()
+        @_processCacheWithIds()
+        @_dealWithPromises()
         context
 
       exposeInterior: =>
@@ -54,11 +57,9 @@
           delete RC[k]
         @_testDoubles = {}
 
-      _processCache: =>
-        @_automockExtractIds()
-        @_processCacheWithIds()
-        @_processCacheWithObjs()
-        @_dealWithPromises()
+      _disableRequireForStubs: =>
+        for k,v of @_doubleObjs
+          RC[k] = {exports: {}}
 
       _dealWithPromises: =>
         for key,val of @_testDoubles
@@ -83,11 +84,9 @@
 
       _processCacheWithObjs: =>
         for k,v of @_doubleObjs
-          if RC[k] is undefined
-            throw new Error('Remove the module \'' + k + '\' from the \'replace\' option, it is not required anywhere!')
           normRelativePath = path.relative(process.cwd(), @_normalizePath(k))
           if not @_testDoubles[normRelativePath]
-            RC[k].exports = @_doubleObjs[k]
+            RC[k] = {exports: @_doubleObjs[k]}
             @_testDoubles[normRelativePath] = RC[k].exports
 
       _normalizeReplacements: (replacements)=>

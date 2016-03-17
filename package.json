@@ -1,6 +1,6 @@
 {
   "name": " deprivation",
-  "version": "3.3.1",
+  "version": "3.4.1",
   "description": "testing facilitation, by converting Unit Under Test to a sandboxed version, that exposes module internals without the need to export them.",
   "main": "main.js",
   "directories": {
