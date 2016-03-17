@@ -61,12 +61,6 @@
         for k,v of @_doubleObjs
           RC[k] = {exports: {}}
 
-      _processCache: =>
-        @_automockExtractIds()
-        @_processCacheWithIds()
-        @_processCacheWithObjs()
-        @_dealWithPromises()
-
       _dealWithPromises: =>
         for key,val of @_testDoubles
           for k,v of val
@@ -90,8 +84,6 @@
 
       _processCacheWithObjs: =>
         for k,v of @_doubleObjs
-          #if RC[k] is undefined
-          #  throw new Error('Remove the module \'' + k + '\' from the \'replace\' option, it is not required anywhere!')
           normRelativePath = path.relative(process.cwd(), @_normalizePath(k))
           if not @_testDoubles[normRelativePath]
             RC[k] = {exports: @_doubleObjs[k]}
