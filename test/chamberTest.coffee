@@ -106,7 +106,12 @@ describe 'chamber for MT', ->
     expect(me.callGlobSync('łochocho')).to.be.equal('jojojoa')
 
   it 'mixes stubs and mocks', ->
-    seance = chamber('test/exampleUUT.js', replace:['glob': {GlobSync: -> return 'jojojoa'}, '../*'], replacer: inquisitor.mockify)
+    myGlob = {
+      GlobSync: -> return 'jojojoa',
+      glob: ->
+
+    }
+    seance = chamber('test/exampleUUT.js', replace:['glob': myGlob, '../*'], replacer: inquisitor.mockify)
     me = seance.blackbox()
     double = seance.getTestDoubles()
     inquisitor.expect(double['fakePackage/farDependancy.js'].caracole).once
